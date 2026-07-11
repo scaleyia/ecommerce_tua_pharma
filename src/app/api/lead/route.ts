@@ -31,15 +31,20 @@ export async function POST(req: Request) {
 
     const date = new Date().toISOString();
 
-    // 1) grava na planilha local leads.csv
-    const row =
-      [date, name, whatsapp, email, coupon, "roleta"].map(esc).join(",") + "\n";
+    // 1) grava na planilha local leads.csv (best-effort:
+    //    em ambientes serverless como a Vercel o disco é somente-leitura)
     try {
-      await access(CSV_PATH);
+      const row =
+        [date, name, whatsapp, email, coupon, "roleta"].map(esc).join(",") + "\n";
+      try {
+        await access(CSV_PATH);
+      } catch {
+        await appendFile(CSV_PATH, HEADER);
+      }
+      await appendFile(CSV_PATH, row);
     } catch {
-      await appendFile(CSV_PATH, HEADER);
+      // disco somente-leitura (Vercel): ignora e segue para o webhook
     }
-    await appendFile(CSV_PATH, row);
 
     // 2) encaminha para a planilha externa (Google Sheets / n8n) se configurado
     const webhook = process.env.LEADS_WEBHOOK_URL;
