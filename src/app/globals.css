@@ -1,0 +1,83 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --brand-green: #12261c;
+    --brand-gold: #c9a24b;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-cream text-ink font-sans antialiased;
+  }
+
+  ::selection {
+    background: var(--brand-gold);
+    color: #12261c;
+  }
+}
+
+@layer components {
+  .container-tua {
+    @apply mx-auto w-full max-w-[1280px] px-4 lg:px-8;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-medium tracking-wide transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/60 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .btn-gold {
+    @apply btn bg-gold text-green-900 hover:bg-gold-light hover:shadow-gold;
+  }
+
+  .btn-green {
+    @apply btn bg-green-700 text-white hover:bg-green-600;
+  }
+
+  .btn-outline {
+    @apply btn border border-green-700/30 bg-transparent text-green-900 hover:border-green-700 hover:bg-green-900 hover:text-white;
+  }
+
+  .btn-ghost-gold {
+    @apply btn border border-gold/50 bg-transparent text-gold hover:bg-gold hover:text-green-900;
+  }
+
+  .card {
+    @apply rounded-2xl border border-green-900/5 bg-white shadow-card;
+  }
+
+  .eyebrow {
+    @apply text-xs font-semibold uppercase tracking-[0.2em] text-gold-dark;
+  }
+
+  .display {
+    @apply font-display font-light tracking-tight;
+  }
+
+  .input {
+    @apply w-full rounded-xl border border-green-900/15 bg-white px-4 py-3 text-sm text-ink outline-none transition focus:border-green-500 focus:ring-2 focus:ring-green-500/20 placeholder:text-ink/40;
+  }
+
+  .label {
+    @apply mb-1.5 block text-sm font-medium text-green-900;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  /* Ocultar barra de rolagem em carrosséis mantendo o scroll */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
