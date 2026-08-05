@@ -1,9 +1,10 @@
 import { MessageCircle } from "lucide-react";
+import { whatsappLink } from "@/lib/site";
 
 export function WhatsAppButton() {
   return (
     <a
-      href="https://wa.me/5511900000000"
+      href={whatsappLink("Olá! Vim pelo site da Tua Pharma e gostaria de mais informações.")}
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Falar no WhatsApp"

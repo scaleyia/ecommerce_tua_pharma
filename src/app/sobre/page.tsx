@@ -1,8 +1,16 @@
 import Link from "next/link";
 import { FlaskConical, ShieldCheck, Leaf, HeartHandshake, Microscope, Award } from "lucide-react";
 import { Logo } from "@/components/Logo";
+import { aboutText } from "@/lib/site";
 
 export const metadata = { title: "Sobre — Tua Pharma" };
+
+const highlights = [
+  "Fórmulas personalizadas",
+  "Infraestrutura moderna",
+  "Equipe qualificada",
+  "Acompanhamento do pré ao pós-prescrição",
+];
 
 const values = [
   { icon: Microscope, title: "Precisão técnica", text: "Fórmulas manipuladas com exatidão em laboratório de alto padrão." },
@@ -22,21 +30,15 @@ export default function SobrePage() {
             <h1 className="mt-2 font-display text-4xl font-light leading-tight text-balance md:text-5xl">
               Manipulação artesanal com alma e ciência
             </h1>
-            <p className="mt-4 text-white/70">
-              A Tua Pharma nasceu do propósito de tratar cada pessoa como única. Unimos a
-              tradição da manipulação artesanal à tecnologia farmacêutica moderna para criar
-              fórmulas exclusivas, feitas sob medida para o seu corpo e o seu bem-estar.
-            </p>
-            <div className="mt-8 grid grid-cols-3 gap-6">
-              {[
-                { n: "+15 mil", l: "fórmulas criadas" },
-                { n: "+30 anos", l: "de experiência" },
-                { n: "4.9/5", l: "satisfação" },
-              ].map((s) => (
-                <div key={s.l}>
-                  <p className="font-display text-3xl text-gold">{s.n}</p>
-                  <p className="text-xs text-white/55">{s.l}</p>
-                </div>
+            <p className="mt-4 text-white/70">{aboutText.full}</p>
+            <div className="mt-8 flex flex-wrap gap-2">
+              {highlights.map((h) => (
+                <span
+                  key={h}
+                  className="rounded-full border border-gold/40 bg-gold/10 px-4 py-2 text-xs font-medium text-gold"
+                >
+                  {h}
+                </span>
               ))}
             </div>
           </div>

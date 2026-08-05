@@ -1,0 +1,411 @@
+{
+  "communities": {
+    "0": [
+      "src_app_conta_page",
+      "src_app_conta_page_contapage",
+      "src_app_conta_page_mockorders",
+      "src_app_conta_page_tab",
+      "src_app_page",
+      "src_app_page_benefits",
+      "src_app_page_homepage",
+      "src_app_page_testimonials",
+      "src_components_countdowntimer",
+      "src_components_countdowntimer_countdowntimer",
+      "src_components_countdowntimer_pad",
+      "src_components_herocarousel",
+      "src_components_herocarousel_herocarousel",
+      "src_components_icon",
+      "src_components_icon_icon",
+      "src_components_icon_iconname",
+      "src_components_icon_map",
+      "src_components_productrow",
+      "src_components_productrow_productrow",
+      "src_components_sectionheading",
+      "src_components_sectionheading_sectionheading",
+      "src_lib_data",
+      "src_lib_data_banners",
+      "src_lib_data_bestsellers",
+      "src_lib_data_clubrewards",
+      "src_lib_data_min_redeem",
+      "src_lib_data_specialoffers",
+      "src_lib_types",
+      "src_lib_types_banner",
+      "src_lib_types_cartitem",
+      "src_lib_types_category",
+      "src_lib_types_product",
+      "src_lib_types_productsize",
+      "src_lib_types_reward"
+    ],
+    "1": [
+      "src_app_cadastro_page",
+      "src_app_cadastro_page_cadastropage",
+      "src_app_clube_page",
+      "src_app_clube_page_clubepage",
+      "src_app_clube_page_metadata",
+      "src_app_login_page",
+      "src_app_login_page_loginpage",
+      "src_app_not_found",
+      "src_app_not_found_notfound",
+      "src_components_clubeclient",
+      "src_components_clubeclient_clubeclient",
+      "src_components_clubeclient_faq",
+      "src_components_clubeclient_perks",
+      "src_components_clubeclient_steps",
+      "src_components_header",
+      "src_components_header_header",
+      "src_components_logo",
+      "src_components_logo_logo",
+      "src_context_authcontext",
+      "src_context_authcontext_accounts",
+      "src_context_authcontext_authcontext",
+      "src_context_authcontext_authcontextvalue",
+      "src_context_authcontext_authprovider",
+      "src_context_authcontext_authresult",
+      "src_context_authcontext_readaccounts",
+      "src_context_authcontext_registerinput",
+      "src_context_authcontext_storedaccount",
+      "src_context_authcontext_useauth",
+      "src_context_authcontext_writeaccounts",
+      "src_lib_data_points_per_real",
+      "src_lib_types_user"
+    ],
+    "2": [
+      "src_app_carrinho_page",
+      "src_app_carrinho_page_cartpage",
+      "src_app_carrinho_page_coupons",
+      "src_app_produtos_slug_page",
+      "src_app_produtos_slug_page_generatemetadata",
+      "src_app_produtos_slug_page_generatestaticparams",
+      "src_app_produtos_slug_page_productpage",
+      "src_components_cartdrawer",
+      "src_components_cartdrawer_cartdrawer",
+      "src_components_productcard",
+      "src_components_productcard_productcard",
+      "src_components_productimage_productimage",
+      "src_components_productpurchase",
+      "src_components_productpurchase_productpurchase",
+      "src_components_starrating",
+      "src_components_starrating_starrating",
+      "src_context_cartcontext",
+      "src_context_cartcontext_cartcontext",
+      "src_context_cartcontext_cartcontextvalue",
+      "src_context_cartcontext_cartprovider",
+      "src_context_cartcontext_usecart",
+      "src_lib_data_categorybyslug",
+      "src_lib_data_productbyslug",
+      "src_lib_data_products",
+      "src_lib_data_productsbycategory",
+      "src_lib_data_unitprice",
+      "src_lib_format",
+      "src_lib_format_brl",
+      "src_lib_format_discountpercent",
+      "src_lib_format_installment"
+    ],
+    "3": [
+      "src_app_layout",
+      "src_app_layout_inter",
+      "src_app_layout_jost",
+      "src_app_layout_metadata",
+      "src_app_layout_rootlayout",
+      "src_app_sobre_page",
+      "src_app_sobre_page_highlights",
+      "src_app_sobre_page_metadata",
+      "src_app_sobre_page_sobrepage",
+      "src_app_sobre_page_values",
+      "src_app_trocas_devolucoes_page",
+      "src_app_trocas_devolucoes_page_metadata",
+      "src_app_trocas_devolucoes_page_trocasdevolucoespage",
+      "src_components_cadastropopup",
+      "src_components_cadastropopup_cadastropopup",
+      "src_components_footer",
+      "src_components_footer_footer",
+      "src_components_footer_payments",
+      "src_components_footer_seals",
+      "src_components_providers",
+      "src_components_providers_providers",
+      "src_components_receitapopup",
+      "src_components_receitapopup_receitapopup",
+      "src_components_whatsappbutton",
+      "src_components_whatsappbutton_whatsappbutton",
+      "src_lib_site",
+      "src_lib_site_abouttext",
+      "src_lib_site_siteconfig",
+      "src_lib_site_whatsapplink"
+    ],
+    "4": [
+      "ref_dom",
+      "ref_dom_iterable",
+      "ref_esnext",
+      "ref_next_env_d_ts",
+      "ref_next_types_ts",
+      "ref_node_modules",
+      "ref_ts",
+      "ref_tsx",
+      "tsconfig",
+      "tsconfig_compileroptions",
+      "tsconfig_compileroptions_allowjs",
+      "tsconfig_compileroptions_esmoduleinterop",
+      "tsconfig_compileroptions_incremental",
+      "tsconfig_compileroptions_isolatedmodules",
+      "tsconfig_compileroptions_jsx",
+      "tsconfig_compileroptions_lib",
+      "tsconfig_compileroptions_module",
+      "tsconfig_compileroptions_moduleresolution",
+      "tsconfig_compileroptions_noemit",
+      "tsconfig_compileroptions_paths",
+      "tsconfig_compileroptions_plugins",
+      "tsconfig_compileroptions_resolvejsonmodule",
+      "tsconfig_compileroptions_skiplibcheck",
+      "tsconfig_compileroptions_strict",
+      "tsconfig_compileroptions_target",
+      "tsconfig_exclude",
+      "tsconfig_include"
+    ],
+    "5": [
+      "clsx",
+      "lucide_react",
+      "next",
+      "package",
+      "package_dependencies",
+      "package_dependencies_clsx",
+      "package_dependencies_lucide_react",
+      "package_dependencies_next",
+      "package_dependencies_react",
+      "package_dependencies_react_dom",
+      "package_name",
+      "package_private",
+      "package_scripts",
+      "package_scripts_build",
+      "package_scripts_dev",
+      "package_scripts_lint",
+      "package_scripts_start",
+      "package_version",
+      "react",
+      "react_dom"
+    ],
+    "6": [
+      "autoprefixer",
+      "package_devdependencies",
+      "package_devdependencies_autoprefixer",
+      "package_devdependencies_postcss",
+      "package_devdependencies_tailwindcss",
+      "package_devdependencies_types_node",
+      "package_devdependencies_types_react",
+      "package_devdependencies_types_react_dom",
+      "package_devdependencies_typescript",
+      "postcss",
+      "tailwindcss",
+      "types_node",
+      "types_react",
+      "types_react_dom",
+      "typescript"
+    ],
+    "7": [
+      "src_components_productimage",
+      "src_components_productimage_greencapsule",
+      "src_components_productimage_jar",
+      "src_components_productimage_label",
+      "src_components_productimage_oilcapsule",
+      "src_components_productimage_packaging",
+      "src_components_productimage_pile",
+      "src_components_productimage_wrap",
+      "src_lib_types_packaging"
+    ],
+    "8": [
+      "src_app_produtos_page",
+      "src_app_produtos_page_metadata",
+      "src_app_produtos_page_produtospage",
+      "src_components_catalogclient",
+      "src_components_catalogclient_catalogclient",
+      "src_components_catalogclient_sortkey",
+      "src_lib_data_categories"
+    ],
+    "9": [
+      "src_app_api_lead_route",
+      "src_app_api_lead_route_csv_path",
+      "src_app_api_lead_route_dynamic",
+      "src_app_api_lead_route_esc",
+      "src_app_api_lead_route_post",
+      "src_app_api_lead_route_runtime"
+    ],
+    "10": [
+      "src_app_receita_page",
+      "src_app_receita_page_receitapage",
+      "src_app_receita_page_steps"
+    ],
+    "11": [
+      "next_config",
+      "next_config_nextconfig"
+    ],
+    "12": [
+      "postcss_config",
+      "postcss_config_config"
+    ],
+    "13": [
+      "tailwind_config",
+      "tailwind_config_config"
+    ]
+  },
+  "cohesion": {
+    "0": 0.1051693404634581,
+    "1": 0.1053763440860215,
+    "2": 0.19080459770114944,
+    "3": 0.10837438423645321,
+    "4": 0.07407407407407407,
+    "5": 0.1,
+    "6": 0.13333333333333333,
+    "7": 0.25,
+    "8": 0.3333333333333333,
+    "9": 0.4,
+    "10": 0.6666666666666666,
+    "11": 1.0,
+    "12": 1.0,
+    "13": 1.0
+  },
+  "gods": [
+    {
+      "id": "tsconfig_compileroptions",
+      "label": "compilerOptions",
+      "degree": 16
+    },
+    {
+      "id": "src_lib_format_brl",
+      "label": "brl()",
+      "degree": 14
+    },
+    {
+      "id": "src_context_authcontext_useauth",
+      "label": "useAuth()",
+      "degree": 11
+    },
+    {
+      "id": "src_context_cartcontext_usecart",
+      "label": "useCart()",
+      "degree": 11
+    },
+    {
+      "id": "src_lib_data_unitprice",
+      "label": "unitPrice()",
+      "degree": 9
+    },
+    {
+      "id": "src_components_logo_logo",
+      "label": "Logo()",
+      "degree": 8
+    },
+    {
+      "id": "src_lib_format_installment",
+      "label": "installment()",
+      "degree": 8
+    },
+    {
+      "id": "src_app_produtos_slug_page_productpage",
+      "label": "ProductPage()",
+      "degree": 7
+    },
+    {
+      "id": "src_components_productcard_productcard",
+      "label": "ProductCard()",
+      "degree": 7
+    },
+    {
+      "id": "src_lib_site_whatsapplink",
+      "label": "whatsappLink()",
+      "degree": 7
+    }
+  ],
+  "surprises": [
+    {
+      "source": "CadastroPage()",
+      "target": "useAuth()",
+      "source_files": [
+        "src/app/cadastro/page.tsx",
+        "src/context/AuthContext.tsx"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "peripheral node `CadastroPage()` unexpectedly reaches hub `useAuth()`"
+    },
+    {
+      "source": "ContaPage()",
+      "target": "useAuth()",
+      "source_files": [
+        "src/app/conta/page.tsx",
+        "src/context/AuthContext.tsx"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "bridges separate communities"
+    },
+    {
+      "source": "ContaPage()",
+      "target": "brl()",
+      "source_files": [
+        "src/app/conta/page.tsx",
+        "src/lib/format.ts"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "bridges separate communities"
+    },
+    {
+      "source": "LoginPage()",
+      "target": "useAuth()",
+      "source_files": [
+        "src/app/login/page.tsx",
+        "src/context/AuthContext.tsx"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "peripheral node `LoginPage()` unexpectedly reaches hub `useAuth()`"
+    },
+    {
+      "source": "TrocasDevolucoesPage()",
+      "target": "whatsappLink()",
+      "source_files": [
+        "src/app/trocas-devolucoes/page.tsx",
+        "src/lib/site.ts"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "peripheral node `TrocasDevolucoesPage()` unexpectedly reaches hub `whatsappLink()`"
+    }
+  ],
+  "questions": [
+    {
+      "type": "bridge_node",
+      "question": "Why does `Logo()` connect `Community 1` to `Community 3`?",
+      "why": "High betweenness centrality (0.023) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `useAuth()` connect `Community 1` to `Community 0`?",
+      "why": "High betweenness centrality (0.017) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `devDependencies` connect `Community 6` to `Community 5`?",
+      "why": "High betweenness centrality (0.016) - this node is a cross-community bridge."
+    },
+    {
+      "type": "isolated_nodes",
+      "question": "What connects `nextConfig`, `name`, `version` to the rest of the system?",
+      "why": "80 weakly-connected nodes found - possible documentation gaps or missing edges."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `Community 0` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.1051693404634581 - nodes in this community are weakly interconnected."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `Community 1` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.1053763440860215 - nodes in this community are weakly interconnected."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `Community 3` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.10837438423645321 - nodes in this community are weakly interconnected."
+    }
+  ]
+}

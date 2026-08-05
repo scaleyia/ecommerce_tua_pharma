@@ -7,19 +7,41 @@ export type Category = {
   accent: string; // cor do rótulo do produto
 };
 
+// Tipo de embalagem — define a ilustração (SVG) mostrada para o produto
+export type Packaging =
+  | "pote-capsula" // pote de cápsulas/comprimidos (padrão dos manipulados)
+  | "pote-po" // pote largo de pó (creatina, whey, colágeno em pó)
+  | "pote-creme" // pote baixo e largo de creme/sérum
+  | "bisnaga" // bisnaga/tubo (pomada, gel)
+  | "gotas" // frasco conta-gotas (sublingual, gotas)
+  | "frasco" // frasco líquido (xampu, solução, xarope, tônico)
+  | "spray" // frasco spray âmbar (minoxidil, loção capilar)
+  | "caixa"; // caixa/estojo (sachês)
+
+export type ProductSize = {
+  label: string; // ex.: "100 mL"
+  refPrice?: number; // preço de referência (BS Pharma) — interno, não exibido
+  price: number; // preço final; se refPrice existir, é derivado (−10%)
+};
+
 export type Product = {
   id: string;
   slug: string;
   name: string;
   category: string; // category slug
-  price: number;
-  oldPrice?: number;
+  refPrice?: number; // preço de referência (BS Pharma) — interno, não exibido
+  price: number; // preço final; se refPrice existir, é derivado (refPrice −10%)
+  oldPrice?: number; // apenas promoções reais (preço riscado)
   rating: number;
   reviews: number;
   shortDescription: string;
   description: string;
   benefits: string[];
   badges: string[];
+  packaging: Packaging;
+  image?: string; // foto real do produto (royalty-free); fallback p/ ilustração SVG
+  imageLabel?: string; // nome curto exibido na embalagem
+  sizes?: ProductSize[]; // opções de tamanho (ex.: loção)
   bestseller?: boolean;
   special?: boolean;
 };
@@ -47,6 +69,7 @@ export type Reward = {
 export type CartItem = {
   productId: string;
   quantity: number;
+  size?: string; // rótulo do tamanho escolhido (ex.: "100 mL")
 };
 
 export type User = {

@@ -11,6 +11,10 @@ import { useCart } from "@/context/CartContext";
 export function ProductCard({ product }: { product: Product }) {
   const { add } = useCart();
   const off = discountPercent(product.price, product.oldPrice);
+  const hasSizes = !!product.sizes?.length;
+  const displayPrice = hasSizes
+    ? Math.min(...product.sizes!.map((s) => s.price))
+    : product.price;
 
   return (
     <div className="card group flex flex-col overflow-hidden transition duration-300 hover:-translate-y-1 hover:shadow-gold">
@@ -20,8 +24,11 @@ export function ProductCard({ product }: { product: Product }) {
         aria-label={product.name}
       >
         <ProductImage
+          packaging={product.packaging}
           categorySlug={product.category}
-          name={product.name}
+          image={product.image}
+          label={product.imageLabel ?? product.name}
+          spec={product.badges[1]}
           className="aspect-square"
         />
         {off > 0 && (
@@ -63,25 +70,35 @@ export function ProductCard({ product }: { product: Product }) {
         </div>
 
         <div className="mt-auto pt-3">
-          {product.oldPrice && (
+          {product.oldPrice && !hasSizes && (
             <span className="text-sm text-ink/40 line-through">
               {brl(product.oldPrice)}
             </span>
           )}
+          {hasSizes && (
+            <span className="text-xs text-ink/50">A partir de</span>
+          )}
           <div className="flex items-end gap-2">
             <span className="text-xl font-semibold text-green-900">
-              {brl(product.price)}
+              {brl(displayPrice)}
             </span>
           </div>
-          <span className="text-xs text-ink/50">{installment(product.price)}</span>
+          <span className="text-xs text-ink/50">{installment(displayPrice)}</span>
 
-          <button
-            onClick={() => add(product.id)}
-            className="btn-gold mt-3 w-full"
-          >
-            <ShoppingBag size={16} />
-            Comprar
-          </button>
+          {hasSizes ? (
+            <Link href={`/produtos/${product.slug}`} className="btn-gold mt-3 w-full">
+              <ShoppingBag size={16} />
+              Escolher tamanho
+            </Link>
+          ) : (
+            <button
+              onClick={() => add(product.id)}
+              className="btn-gold mt-3 w-full"
+            >
+              <ShoppingBag size={16} />
+              Comprar
+            </button>
+          )}
         </div>
       </div>
     </div>

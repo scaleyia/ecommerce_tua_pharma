@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { X, Plus, Minus, Trash2, ShoppingBag } from "lucide-react";
 import { useCart } from "@/context/CartContext";
-import { products } from "@/lib/data";
+import { products, unitPrice } from "@/lib/data";
 import { brl } from "@/lib/format";
 import { ProductImage } from "./ProductImage";
 
@@ -78,11 +78,15 @@ export function CartDrawer() {
                 const product = products.find((p) => p.id === item.productId);
                 if (!product) return null;
                 return (
-                  <div key={item.productId} className="card flex gap-3 p-3">
+                  <div key={item.productId + (item.size ?? "")} className="card flex gap-3 p-3">
                     <ProductImage
+                      packaging={product.packaging}
                       categorySlug={product.category}
+                      image={product.image}
+                      showBrand={false}
+                      label={product.imageLabel ?? product.name}
+                      spec={product.badges[1]}
                       className="h-20 w-20 shrink-0 rounded-xl"
-                      iconSize={40}
                     />
                     <div className="flex flex-1 flex-col">
                       <div className="flex items-start justify-between gap-2">
@@ -92,9 +96,12 @@ export function CartDrawer() {
                           className="text-sm font-medium leading-snug text-green-900 hover:text-green-600"
                         >
                           {product.name}
+                          {item.size && (
+                            <span className="text-ink/50"> · {item.size}</span>
+                          )}
                         </Link>
                         <button
-                          onClick={() => remove(product.id)}
+                          onClick={() => remove(product.id, item.size)}
                           aria-label="Remover"
                           className="text-ink/30 hover:text-red-500"
                         >
@@ -104,7 +111,7 @@ export function CartDrawer() {
                       <div className="mt-auto flex items-center justify-between pt-2">
                         <div className="flex items-center rounded-full border border-green-900/15">
                           <button
-                            onClick={() => setQty(product.id, item.quantity - 1)}
+                            onClick={() => setQty(product.id, item.quantity - 1, item.size)}
                             className="px-2 py-1 text-green-900 hover:text-green-600"
                             aria-label="Diminuir"
                           >
@@ -112,7 +119,7 @@ export function CartDrawer() {
                           </button>
                           <span className="w-6 text-center text-sm">{item.quantity}</span>
                           <button
-                            onClick={() => setQty(product.id, item.quantity + 1)}
+                            onClick={() => setQty(product.id, item.quantity + 1, item.size)}
                             className="px-2 py-1 text-green-900 hover:text-green-600"
                             aria-label="Aumentar"
                           >
@@ -120,7 +127,7 @@ export function CartDrawer() {
                           </button>
                         </div>
                         <span className="text-sm font-semibold text-green-900">
-                          {brl(product.price * item.quantity)}
+                          {brl(unitPrice(product, item.size) * item.quantity)}
                         </span>
                       </div>
                     </div>

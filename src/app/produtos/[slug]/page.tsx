@@ -61,8 +61,11 @@ export default async function ProductPage({
         {/* imagem */}
         <div>
           <ProductImage
+            packaging={product.packaging}
             categorySlug={product.category}
-            name={product.name}
+            image={product.image}
+            label={product.imageLabel ?? product.name}
+            spec={product.badges[1]}
             variant="detail"
             className="aspect-square rounded-3xl"
           />
@@ -70,9 +73,12 @@ export default async function ProductPage({
             {[0, 1, 2, 3].map((i) => (
               <ProductImage
                 key={i}
+                packaging={product.packaging}
                 categorySlug={product.category}
+                image={product.image}
+                label={product.imageLabel ?? product.name}
+                spec={product.badges[1]}
                 className="aspect-square rounded-xl opacity-70"
-                iconSize={40}
               />
             ))}
           </div>
@@ -103,25 +109,29 @@ export default async function ProductPage({
 
           {/* preço */}
           <div className="mt-6 rounded-2xl bg-white p-5 shadow-card">
-            <div className="flex items-center gap-3">
-              {product.oldPrice && (
-                <span className="text-ink/40 line-through">{brl(product.oldPrice)}</span>
-              )}
-              {off > 0 && (
-                <span className="rounded-full bg-gold px-2.5 py-1 text-xs font-bold text-green-900">
-                  -{off}% OFF
-                </span>
-              )}
-            </div>
-            <p className="font-display text-4xl font-light text-green-900">
-              {brl(product.price)}
-            </p>
-            <p className="text-sm text-ink/55">
-              ou {installment(product.price)} · <span className="text-green-600">5% OFF no Pix</span>
-            </p>
+            {!product.sizes && (
+              <>
+                <div className="flex items-center gap-3">
+                  {product.oldPrice && (
+                    <span className="text-ink/40 line-through">{brl(product.oldPrice)}</span>
+                  )}
+                  {off > 0 && (
+                    <span className="rounded-full bg-gold px-2.5 py-1 text-xs font-bold text-green-900">
+                      -{off}% OFF
+                    </span>
+                  )}
+                </div>
+                <p className="font-display text-4xl font-light text-green-900">
+                  {brl(product.price)}
+                </p>
+                <p className="text-sm text-ink/55">
+                  ou {installment(product.price)} · <span className="text-green-600">5% OFF no Pix</span>
+                </p>
+              </>
+            )}
 
-            <div className="mt-5">
-              <ProductPurchase productId={product.id} />
+            <div className={product.sizes ? "" : "mt-5"}>
+              <ProductPurchase product={product} />
             </div>
           </div>
 

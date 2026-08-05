@@ -9,20 +9,27 @@ import {
   Award,
   Leaf,
   Mail,
-  Phone,
   MapPin,
   Instagram,
-  Facebook,
   MessageCircle,
 } from "lucide-react";
 import { Logo } from "./Logo";
 import { categories } from "@/lib/data";
+import { siteConfig, aboutText, whatsappLink } from "@/lib/site";
 
 const seals = [
-  { icon: ShieldCheck, title: "Autorizado ANVISA", sub: "AFE nº 0.00.000-0" },
+  {
+    icon: ShieldCheck,
+    title: "Autorizado ANVISA",
+    sub: siteConfig.sanitary.afe ? `AFE nº ${siteConfig.sanitary.afe}` : "Farmácia licenciada",
+  },
   { icon: Lock, title: "Site Seguro", sub: "Certificado SSL 256-bit" },
   { icon: BadgeCheck, title: "Compra Garantida", sub: "Satisfação ou reembolso" },
-  { icon: Award, title: "Farmacêutico Responsável", sub: "Dra. Marina Alves — CRF 00.000" },
+  {
+    icon: Award,
+    title: "Farmacêutico Responsável",
+    sub: `${siteConfig.pharmacist.name} — ${siteConfig.pharmacist.crf}`,
+  },
   { icon: Leaf, title: "Qualidade Certificada", sub: "Boas Práticas de Manipulação" },
 ];
 
@@ -93,20 +100,26 @@ export function Footer() {
       <div className="container-tua grid grid-cols-2 gap-8 py-12 md:grid-cols-4 lg:grid-cols-5">
         <div className="col-span-2 md:col-span-1">
           <Logo size="sm" />
-          <p className="mt-4 text-sm text-white/55">
-            Farmácia de manipulação dedicada a criar fórmulas sob medida, com precisão
-            farmacêutica e ingredientes de alta pureza.
-          </p>
+          <p className="mt-4 text-sm text-white/55">{aboutText.short}</p>
           <div className="mt-4 flex gap-2">
-            {[Instagram, Facebook, MessageCircle].map((Ic, i) => (
-              <a
-                key={i}
-                href="#"
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-gold transition hover:bg-gold hover:text-green-900"
-              >
-                <Ic size={16} />
-              </a>
-            ))}
+            <a
+              href={siteConfig.social.instagram}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Instagram da Tua Pharma"
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-gold transition hover:bg-gold hover:text-green-900"
+            >
+              <Instagram size={16} />
+            </a>
+            <a
+              href={whatsappLink()}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="WhatsApp da Tua Pharma"
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-gold transition hover:bg-gold hover:text-green-900"
+            >
+              <MessageCircle size={16} />
+            </a>
           </div>
         </div>
 
@@ -134,7 +147,7 @@ export function Footer() {
             <li><Link href="/clube" className="hover:text-gold">Clube de Vantagens</Link></li>
             <li><Link href="/receita" className="hover:text-gold">Envie sua receita</Link></li>
             <li><a href="#" className="hover:text-gold">Política de Privacidade</a></li>
-            <li><a href="#" className="hover:text-gold">Trocas e Devoluções</a></li>
+            <li><Link href="/trocas-devolucoes" className="hover:text-gold">Trocas e Devoluções</Link></li>
           </ul>
         </div>
 
@@ -143,14 +156,31 @@ export function Footer() {
             Atendimento
           </h4>
           <ul className="space-y-3 text-sm">
-            <li className="flex items-center gap-2"><Phone size={15} className="text-gold" /> (11) 4000-0000</li>
-            <li className="flex items-center gap-2"><MessageCircle size={15} className="text-gold" /> WhatsApp: (11) 90000-0000</li>
-            <li className="flex items-center gap-2"><Mail size={15} className="text-gold" /> contato@tuapharma.com.br</li>
-            <li className="flex items-start gap-2"><MapPin size={15} className="mt-0.5 shrink-0 text-gold" /> Av. Exemplo, 1234 — São Paulo/SP</li>
+            <li>
+              <a
+                href={whatsappLink()}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 hover:text-gold"
+              >
+                <MessageCircle size={15} className="text-gold" /> WhatsApp: {siteConfig.contact.whatsapp}
+              </a>
+            </li>
+            <li>
+              <a
+                href={`mailto:${siteConfig.contact.email}`}
+                className="flex items-center gap-2 hover:text-gold"
+              >
+                <Mail size={15} className="text-gold" /> {siteConfig.contact.email}
+              </a>
+            </li>
+            <li className="flex items-start gap-2">
+              <MapPin size={15} className="mt-0.5 shrink-0 text-gold" />
+              {siteConfig.address.street} — {siteConfig.address.district}, {siteConfig.address.city}/
+              {siteConfig.address.state}
+            </li>
           </ul>
-          <p className="mt-4 text-xs text-white/50">
-            Seg. a Sex. das 8h às 20h · Sáb. das 8h às 14h
-          </p>
+          <p className="mt-4 text-xs text-white/50">{siteConfig.contact.hours}</p>
         </div>
       </div>
 
@@ -178,16 +208,16 @@ export function Footer() {
       <div className="bg-green-950">
         <div className="container-tua flex flex-col gap-1 py-6 text-center text-[0.72rem] text-white/45">
           <p>
-            TUA PHARMA FARMÁCIA DE MANIPULAÇÃO LTDA · CNPJ: 00.000.000/0001-00 · Av.
-            Exemplo, 1234 — São Paulo/SP
+            {siteConfig.legalName} · CNPJ: {siteConfig.cnpj} · {siteConfig.address.full}
           </p>
           <p>
-            Farmacêutica Responsável: Dra. Marina Alves · CRF-SP nº 00.000 · AFE/ANVISA nº
-            0.00.000-0
+            Farmacêutico Responsável: {siteConfig.pharmacist.name} · {siteConfig.pharmacist.crf} ·
+            Registro CRF-MG nº {siteConfig.crfRegistration.number}
+            {siteConfig.sanitary.afe ? ` · AFE/ANVISA nº ${siteConfig.sanitary.afe}` : ""}
+            {siteConfig.sanitary.license ? ` · Licença Sanitária nº ${siteConfig.sanitary.license}` : ""}
           </p>
           <p className="mt-2">
-            © {2026} Tua Pharma. Todos os direitos reservados. Este site tem caráter
-            demonstrativo.
+            © {2026} Tua Pharma. Todos os direitos reservados.
           </p>
         </div>
       </div>

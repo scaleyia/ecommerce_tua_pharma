@@ -9,15 +9,15 @@ import {
   type ReactNode,
 } from "react";
 import type { CartItem } from "@/lib/types";
-import { products } from "@/lib/data";
+import { products, unitPrice } from "@/lib/data";
 
 const STORAGE_KEY = "tua-cart";
 
 type CartContextValue = {
   items: CartItem[];
-  add: (productId: string, quantity?: number) => void;
-  remove: (productId: string) => void;
-  setQty: (productId: string, quantity: number) => void;
+  add: (productId: string, quantity?: number, size?: string) => void;
+  remove: (productId: string, size?: string) => void;
+  setQty: (productId: string, quantity: number, size?: string) => void;
   clear: () => void;
   count: number;
   subtotal: number;
@@ -46,27 +46,35 @@ export function CartProvider({ children }: { children: ReactNode }) {
     if (hydrated) localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
   }, [items, hydrated]);
 
-  const add = (productId: string, quantity = 1) => {
+  const add = (productId: string, quantity = 1, size?: string) => {
     setItems((prev) => {
-      const existing = prev.find((i) => i.productId === productId);
+      const existing = prev.find(
+        (i) => i.productId === productId && i.size === size
+      );
       if (existing) {
         return prev.map((i) =>
-          i.productId === productId ? { ...i, quantity: i.quantity + quantity } : i
+          i.productId === productId && i.size === size
+            ? { ...i, quantity: i.quantity + quantity }
+            : i
         );
       }
-      return [...prev, { productId, quantity }];
+      return [...prev, { productId, quantity, size }];
     });
     setOpen(true);
   };
 
-  const remove = (productId: string) =>
-    setItems((prev) => prev.filter((i) => i.productId !== productId));
+  const remove = (productId: string, size?: string) =>
+    setItems((prev) =>
+      prev.filter((i) => !(i.productId === productId && i.size === size))
+    );
 
-  const setQty = (productId: string, quantity: number) =>
+  const setQty = (productId: string, quantity: number, size?: string) =>
     setItems((prev) =>
       quantity <= 0
-        ? prev.filter((i) => i.productId !== productId)
-        : prev.map((i) => (i.productId === productId ? { ...i, quantity } : i))
+        ? prev.filter((i) => !(i.productId === productId && i.size === size))
+        : prev.map((i) =>
+            i.productId === productId && i.size === size ? { ...i, quantity } : i
+          )
     );
 
   const clear = () => setItems([]);
@@ -80,7 +88,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     () =>
       items.reduce((sum, i) => {
         const product = products.find((p) => p.id === i.productId);
-        return sum + (product ? product.price * i.quantity : 0);
+        return sum + (product ? unitPrice(product, i.size) * i.quantity : 0);
       }, 0),
     [items]
   );

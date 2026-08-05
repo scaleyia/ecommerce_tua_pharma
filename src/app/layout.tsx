@@ -7,7 +7,7 @@ import { Footer } from "@/components/Footer";
 import { CartDrawer } from "@/components/CartDrawer";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { ReceitaPopup } from "@/components/ReceitaPopup";
-import { RoletaPopup } from "@/components/RoletaPopup";
+import { CadastroPopup } from "@/components/CadastroPopup";
 
 const jost = Jost({
   subsets: ["latin"],
@@ -49,7 +49,7 @@ export default function RootLayout({
           <Footer />
           <CartDrawer />
           <WhatsAppButton />
-          <RoletaPopup />
+          <CadastroPopup />
           <ReceitaPopup />
         </Providers>
       </body>

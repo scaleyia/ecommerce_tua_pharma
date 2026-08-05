@@ -1,0 +1,47 @@
+# .graphifyignore — o que o Graphify NÃO deve indexar (economiza tokens)
+# Mesma sintaxe do .gitignore. Este é o modelo; o graphify-bootstrap.sh copia
+# uma cópia disto para cada app. Cobrimos segredos aqui de propósito, porque o
+# .graphifyignore pode substituir (não somar) o .gitignore em algumas versões.
+
+# dependências e builds (peso morto)
+node_modules/
+dist/
+build/
+out/
+.next/
+.nuxt/
+.output/
+coverage/
+.turbo/
+.vite/
+.cache/
+
+# lockfiles (enormes, valor quase zero pro grafo)
+*-lock.json
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+bun.lockb
+bun.lock
+
+# segredos — NUNCA no grafo
+.env
+.env.*
+*.pem
+*.key
+
+# mídia e binários pesados (tree-sitter não parseia mesmo)
+*.zip
+*.mp4
+*.mov
+*.mp3
+*.wav
+*.psd
+*.sqlite
+*.db
+*.png
+*.jpg
+*.jpeg
+*.gif
+
+.DS_Store

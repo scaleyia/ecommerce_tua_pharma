@@ -12,7 +12,7 @@ import {
   Lock,
 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
-import { products } from "@/lib/data";
+import { products, unitPrice } from "@/lib/data";
 import { brl } from "@/lib/format";
 import { ProductImage } from "@/components/ProductImage";
 
@@ -97,12 +97,17 @@ export default function CartPage() {
           {items.map((item) => {
             const p = products.find((x) => x.id === item.productId);
             if (!p) return null;
+            const price = unitPrice(p, item.size);
             return (
-              <div key={item.productId} className="card flex gap-4 p-4">
+              <div key={item.productId + (item.size ?? "")} className="card flex gap-4 p-4">
                 <ProductImage
+                  packaging={p.packaging}
                   categorySlug={p.category}
+                  image={p.image}
+                  showBrand={false}
+                  label={p.imageLabel ?? p.name}
+                  spec={p.badges[1]}
                   className="h-24 w-24 shrink-0 rounded-xl"
-                  iconSize={44}
                 />
                 <div className="flex flex-1 flex-col">
                   <div className="flex items-start justify-between gap-3">
@@ -111,9 +116,12 @@ export default function CartPage() {
                       className="font-medium text-green-900 hover:text-green-600"
                     >
                       {p.name}
+                      {item.size && (
+                        <span className="text-ink/50"> · {item.size}</span>
+                      )}
                     </Link>
                     <button
-                      onClick={() => remove(p.id)}
+                      onClick={() => remove(p.id, item.size)}
                       className="text-ink/30 hover:text-red-500"
                       aria-label="Remover"
                     >
@@ -125,7 +133,7 @@ export default function CartPage() {
                   <div className="mt-auto flex items-center justify-between pt-3">
                     <div className="flex items-center rounded-full border border-green-900/15">
                       <button
-                        onClick={() => setQty(p.id, item.quantity - 1)}
+                        onClick={() => setQty(p.id, item.quantity - 1, item.size)}
                         className="px-3 py-1.5 text-green-900 hover:text-green-600"
                         aria-label="Diminuir"
                       >
@@ -133,7 +141,7 @@ export default function CartPage() {
                       </button>
                       <span className="w-8 text-center text-sm">{item.quantity}</span>
                       <button
-                        onClick={() => setQty(p.id, item.quantity + 1)}
+                        onClick={() => setQty(p.id, item.quantity + 1, item.size)}
                         className="px-3 py-1.5 text-green-900 hover:text-green-600"
                         aria-label="Aumentar"
                       >
@@ -142,10 +150,10 @@ export default function CartPage() {
                     </div>
                     <div className="text-right">
                       <p className="font-semibold text-green-900">
-                        {brl(p.price * item.quantity)}
+                        {brl(price * item.quantity)}
                       </p>
                       {item.quantity > 1 && (
-                        <p className="text-xs text-ink/45">{brl(p.price)} cada</p>
+                        <p className="text-xs text-ink/45">{brl(price)} cada</p>
                       )}
                     </div>
                   </div>

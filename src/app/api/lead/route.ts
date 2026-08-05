@@ -6,7 +6,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const CSV_PATH = path.join(process.cwd(), "leads.csv");
-const HEADER = "data,nome,whatsapp,email,cupom,origem\n";
+const HEADER = "data,nome,whatsapp,email,nascimento,cupom,origem\n";
 
 function esc(value: unknown): string {
   return `"${String(value ?? "").replace(/"/g, '""')}"`;
@@ -15,11 +15,13 @@ function esc(value: unknown): string {
 export async function POST(req: Request) {
   try {
     const body = await req.json().catch(() => ({}));
-    const { name, whatsapp, email, coupon } = body as {
+    const { name, whatsapp, email, birthdate, coupon, origem } = body as {
       name?: string;
       whatsapp?: string;
       email?: string;
+      birthdate?: string;
       coupon?: string;
+      origem?: string;
     };
 
     if (!name || !email) {
@@ -30,12 +32,15 @@ export async function POST(req: Request) {
     }
 
     const date = new Date().toISOString();
+    const source = origem || "popup-cadastro";
 
     // 1) grava na planilha local leads.csv (best-effort:
     //    em ambientes serverless como a Vercel o disco é somente-leitura)
     try {
       const row =
-        [date, name, whatsapp, email, coupon, "roleta"].map(esc).join(",") + "\n";
+        [date, name, whatsapp, email, birthdate, coupon, source]
+          .map(esc)
+          .join(",") + "\n";
       try {
         await access(CSV_PATH);
       } catch {
@@ -53,7 +58,15 @@ export async function POST(req: Request) {
         await fetch(webhook, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ date, name, whatsapp, email, coupon, origem: "roleta" }),
+          body: JSON.stringify({
+            date,
+            name,
+            whatsapp,
+            email,
+            birthdate,
+            coupon,
+            origem: source,
+          }),
         });
       } catch {
         // não bloqueia o cadastro se o webhook falhar
