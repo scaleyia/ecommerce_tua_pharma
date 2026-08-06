@@ -8,14 +8,14 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import type { CartItem } from "@/lib/types";
-import { products, unitPrice } from "@/lib/data";
+import type { CartItem, Product } from "@/lib/types";
+import { unitPrice } from "@/lib/data";
 
 const STORAGE_KEY = "tua-cart";
 
 type CartContextValue = {
   items: CartItem[];
-  add: (productId: string, quantity?: number, size?: string) => void;
+  add: (product: Product, quantity?: number, size?: string) => void;
   remove: (productId: string, size?: string) => void;
   setQty: (productId: string, quantity: number, size?: string) => void;
   clear: () => void;
@@ -46,19 +46,35 @@ export function CartProvider({ children }: { children: ReactNode }) {
     if (hydrated) localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
   }, [items, hydrated]);
 
-  const add = (productId: string, quantity = 1, size?: string) => {
+  const add = (product: Product, quantity = 1, size?: string) => {
+    const price = unitPrice(product, size);
     setItems((prev) => {
       const existing = prev.find(
-        (i) => i.productId === productId && i.size === size
+        (i) => i.productId === product.id && i.size === size
       );
       if (existing) {
         return prev.map((i) =>
-          i.productId === productId && i.size === size
+          i.productId === product.id && i.size === size
             ? { ...i, quantity: i.quantity + quantity }
             : i
         );
       }
-      return [...prev, { productId, quantity, size }];
+      return [
+        ...prev,
+        {
+          productId: product.id,
+          variantId: product.variantId,
+          name: product.name,
+          slug: product.slug,
+          price,
+          category: product.category,
+          packaging: product.packaging,
+          image: product.image,
+          imageLabel: product.imageLabel ?? product.name,
+          quantity,
+          size,
+        },
+      ];
     });
     setOpen(true);
   };
@@ -85,11 +101,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   );
 
   const subtotal = useMemo(
-    () =>
-      items.reduce((sum, i) => {
-        const product = products.find((p) => p.id === i.productId);
-        return sum + (product ? unitPrice(product, i.size) * i.quantity : 0);
-      }, 0),
+    () => items.reduce((sum, i) => sum + i.price * i.quantity, 0),
     [items]
   );
 

@@ -29,3 +29,11 @@ leads.csv
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Nuvemshop CLI credenciais
+nuvemshop-theme/.nuvem
+.nuvem
+
+# Nuvemshop (caminho abandonado — mantido só localmente)
+nuvemshop-theme/
+nuvemshop-produtos.csv

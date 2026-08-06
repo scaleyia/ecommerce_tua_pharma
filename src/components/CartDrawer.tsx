@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { X, Plus, Minus, Trash2, ShoppingBag } from "lucide-react";
 import { useCart } from "@/context/CartContext";
-import { products, unitPrice } from "@/lib/data";
 import { brl } from "@/lib/format";
 import { ProductImage } from "./ProductImage";
 
@@ -74,66 +73,61 @@ export function CartDrawer() {
             </div>
 
             <div className="flex-1 space-y-3 overflow-y-auto p-5">
-              {items.map((item) => {
-                const product = products.find((p) => p.id === item.productId);
-                if (!product) return null;
-                return (
-                  <div key={item.productId + (item.size ?? "")} className="card flex gap-3 p-3">
-                    <ProductImage
-                      packaging={product.packaging}
-                      categorySlug={product.category}
-                      image={product.image}
-                      showBrand={false}
-                      label={product.imageLabel ?? product.name}
-                      spec={product.badges[1]}
-                      className="h-20 w-20 shrink-0 rounded-xl"
-                    />
-                    <div className="flex flex-1 flex-col">
-                      <div className="flex items-start justify-between gap-2">
-                        <Link
-                          href={`/produtos/${product.slug}`}
-                          onClick={() => setOpen(false)}
-                          className="text-sm font-medium leading-snug text-green-900 hover:text-green-600"
-                        >
-                          {product.name}
-                          {item.size && (
-                            <span className="text-ink/50"> · {item.size}</span>
-                          )}
-                        </Link>
+              {items.map((item) => (
+                <div key={item.productId + (item.size ?? "")} className="card flex gap-3 p-3">
+                  <ProductImage
+                    packaging={item.packaging}
+                    categorySlug={item.category}
+                    image={item.image}
+                    showBrand={false}
+                    label={item.imageLabel ?? item.name}
+                    className="h-20 w-20 shrink-0 rounded-xl"
+                  />
+                  <div className="flex flex-1 flex-col">
+                    <div className="flex items-start justify-between gap-2">
+                      <Link
+                        href={`/produtos/${item.slug}`}
+                        onClick={() => setOpen(false)}
+                        className="text-sm font-medium leading-snug text-green-900 hover:text-green-600"
+                      >
+                        {item.name}
+                        {item.size && (
+                          <span className="text-ink/50"> · {item.size}</span>
+                        )}
+                      </Link>
+                      <button
+                        onClick={() => remove(item.productId, item.size)}
+                        aria-label="Remover"
+                        className="text-ink/30 hover:text-red-500"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                    <div className="mt-auto flex items-center justify-between pt-2">
+                      <div className="flex items-center rounded-full border border-green-900/15">
                         <button
-                          onClick={() => remove(product.id, item.size)}
-                          aria-label="Remover"
-                          className="text-ink/30 hover:text-red-500"
+                          onClick={() => setQty(item.productId, item.quantity - 1, item.size)}
+                          className="px-2 py-1 text-green-900 hover:text-green-600"
+                          aria-label="Diminuir"
                         >
-                          <Trash2 size={16} />
+                          <Minus size={14} />
+                        </button>
+                        <span className="w-6 text-center text-sm">{item.quantity}</span>
+                        <button
+                          onClick={() => setQty(item.productId, item.quantity + 1, item.size)}
+                          className="px-2 py-1 text-green-900 hover:text-green-600"
+                          aria-label="Aumentar"
+                        >
+                          <Plus size={14} />
                         </button>
                       </div>
-                      <div className="mt-auto flex items-center justify-between pt-2">
-                        <div className="flex items-center rounded-full border border-green-900/15">
-                          <button
-                            onClick={() => setQty(product.id, item.quantity - 1, item.size)}
-                            className="px-2 py-1 text-green-900 hover:text-green-600"
-                            aria-label="Diminuir"
-                          >
-                            <Minus size={14} />
-                          </button>
-                          <span className="w-6 text-center text-sm">{item.quantity}</span>
-                          <button
-                            onClick={() => setQty(product.id, item.quantity + 1, item.size)}
-                            className="px-2 py-1 text-green-900 hover:text-green-600"
-                            aria-label="Aumentar"
-                          >
-                            <Plus size={14} />
-                          </button>
-                        </div>
-                        <span className="text-sm font-semibold text-green-900">
-                          {brl(unitPrice(product, item.size) * item.quantity)}
-                        </span>
-                      </div>
+                      <span className="text-sm font-semibold text-green-900">
+                        {brl(item.price * item.quantity)}
+                      </span>
                     </div>
                   </div>
-                );
-              })}
+                </div>
+              ))}
             </div>
 
             <footer className="border-t border-green-900/10 bg-white p-5">

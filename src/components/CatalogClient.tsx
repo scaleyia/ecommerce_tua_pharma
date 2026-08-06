@@ -5,11 +5,13 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { SlidersHorizontal, Search } from "lucide-react";
 import { ProductCard } from "./ProductCard";
-import { categories, products } from "@/lib/data";
+import { categories, products as mockProducts } from "@/lib/data";
+import type { Product } from "@/lib/types";
 
 type SortKey = "relevancia" | "menor" | "maior" | "avaliacao";
 
-export function CatalogClient() {
+export function CatalogClient({ products: productsProp }: { products?: Product[] }) {
+  const products = productsProp ?? mockProducts;
   const params = useSearchParams();
   const activeCategory = params.get("categoria") ?? "";
   const query = (params.get("q") ?? "").toLowerCase();

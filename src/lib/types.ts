@@ -26,6 +26,7 @@ export type ProductSize = {
 
 export type Product = {
   id: string;
+  variantId?: string; // id da variante na Medusa (p/ carrinho/checkout)
   slug: string;
   name: string;
   category: string; // category slug
@@ -68,6 +69,14 @@ export type Reward = {
 
 export type CartItem = {
   productId: string;
+  variantId?: string; // variante na Medusa (p/ checkout)
+  name: string;
+  slug: string;
+  price: number; // preço unitário no momento em que foi adicionado
+  category: string;
+  packaging: Packaging;
+  image?: string;
+  imageLabel?: string;
   quantity: number;
   size?: string; // rótulo do tamanho escolhido (ex.: "100 mL")
 };

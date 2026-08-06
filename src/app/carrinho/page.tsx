@@ -12,7 +12,7 @@ import {
   Lock,
 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
-import { products, unitPrice } from "@/lib/data";
+import { createMedusaCart } from "@/lib/medusa";
 import { brl } from "@/lib/format";
 import { ProductImage } from "@/components/ProductImage";
 
@@ -47,7 +47,16 @@ export default function CartPage() {
     }
   };
 
-  const checkout = () => {
+  const checkout = async () => {
+    // Registra o carrinho na Medusa (pedido pago final depende de pagamento/frete)
+    try {
+      const cartId = await createMedusaCart(
+        items.map((i) => ({ variantId: i.variantId, quantity: i.quantity }))
+      );
+      if (cartId) console.log("Medusa cart criado:", cartId);
+    } catch (e) {
+      console.error(e);
+    }
     setPlaced(true);
     clear();
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -94,73 +103,64 @@ export default function CartPage() {
       <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
         {/* itens */}
         <div className="space-y-4">
-          {items.map((item) => {
-            const p = products.find((x) => x.id === item.productId);
-            if (!p) return null;
-            const price = unitPrice(p, item.size);
-            return (
-              <div key={item.productId + (item.size ?? "")} className="card flex gap-4 p-4">
-                <ProductImage
-                  packaging={p.packaging}
-                  categorySlug={p.category}
-                  image={p.image}
-                  showBrand={false}
-                  label={p.imageLabel ?? p.name}
-                  spec={p.badges[1]}
-                  className="h-24 w-24 shrink-0 rounded-xl"
-                />
-                <div className="flex flex-1 flex-col">
-                  <div className="flex items-start justify-between gap-3">
-                    <Link
-                      href={`/produtos/${p.slug}`}
-                      className="font-medium text-green-900 hover:text-green-600"
-                    >
-                      {p.name}
-                      {item.size && (
-                        <span className="text-ink/50"> · {item.size}</span>
-                      )}
-                    </Link>
+          {items.map((item) => (
+            <div key={item.productId + (item.size ?? "")} className="card flex gap-4 p-4">
+              <ProductImage
+                packaging={item.packaging}
+                categorySlug={item.category}
+                image={item.image}
+                showBrand={false}
+                label={item.imageLabel ?? item.name}
+                className="h-24 w-24 shrink-0 rounded-xl"
+              />
+              <div className="flex flex-1 flex-col">
+                <div className="flex items-start justify-between gap-3">
+                  <Link
+                    href={`/produtos/${item.slug}`}
+                    className="font-medium text-green-900 hover:text-green-600"
+                  >
+                    {item.name}
+                    {item.size && <span className="text-ink/50"> · {item.size}</span>}
+                  </Link>
+                  <button
+                    onClick={() => remove(item.productId, item.size)}
+                    className="text-ink/30 hover:text-red-500"
+                    aria-label="Remover"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                </div>
+
+                <div className="mt-auto flex items-center justify-between pt-3">
+                  <div className="flex items-center rounded-full border border-green-900/15">
                     <button
-                      onClick={() => remove(p.id, item.size)}
-                      className="text-ink/30 hover:text-red-500"
-                      aria-label="Remover"
+                      onClick={() => setQty(item.productId, item.quantity - 1, item.size)}
+                      className="px-3 py-1.5 text-green-900 hover:text-green-600"
+                      aria-label="Diminuir"
                     >
-                      <Trash2 size={18} />
+                      <Minus size={14} />
+                    </button>
+                    <span className="w-8 text-center text-sm">{item.quantity}</span>
+                    <button
+                      onClick={() => setQty(item.productId, item.quantity + 1, item.size)}
+                      className="px-3 py-1.5 text-green-900 hover:text-green-600"
+                      aria-label="Aumentar"
+                    >
+                      <Plus size={14} />
                     </button>
                   </div>
-                  <span className="text-xs text-ink/50">{p.badges.join(" · ")}</span>
-
-                  <div className="mt-auto flex items-center justify-between pt-3">
-                    <div className="flex items-center rounded-full border border-green-900/15">
-                      <button
-                        onClick={() => setQty(p.id, item.quantity - 1, item.size)}
-                        className="px-3 py-1.5 text-green-900 hover:text-green-600"
-                        aria-label="Diminuir"
-                      >
-                        <Minus size={14} />
-                      </button>
-                      <span className="w-8 text-center text-sm">{item.quantity}</span>
-                      <button
-                        onClick={() => setQty(p.id, item.quantity + 1, item.size)}
-                        className="px-3 py-1.5 text-green-900 hover:text-green-600"
-                        aria-label="Aumentar"
-                      >
-                        <Plus size={14} />
-                      </button>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-semibold text-green-900">
-                        {brl(price * item.quantity)}
-                      </p>
-                      {item.quantity > 1 && (
-                        <p className="text-xs text-ink/45">{brl(price)} cada</p>
-                      )}
-                    </div>
+                  <div className="text-right">
+                    <p className="font-semibold text-green-900">
+                      {brl(item.price * item.quantity)}
+                    </p>
+                    {item.quantity > 1 && (
+                      <p className="text-xs text-ink/45">{brl(item.price)} cada</p>
+                    )}
                   </div>
                 </div>
               </div>
-            );
-          })}
+            </div>
+          ))}
 
           <div className="flex justify-between">
             <Link href="/produtos" className="text-sm font-medium text-green-700 hover:text-gold-dark">

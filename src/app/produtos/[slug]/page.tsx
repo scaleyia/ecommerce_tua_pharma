@@ -1,12 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Check, Truck, ShieldCheck, RefreshCw, FlaskConical } from "lucide-react";
-import {
-  productBySlug,
-  categoryBySlug,
-  productsByCategory,
-  products,
-} from "@/lib/data";
+import { categoryBySlug } from "@/lib/data";
+import { getProductBySlug, getAllProducts } from "@/lib/medusa";
 import { brl, installment, discountPercent } from "@/lib/format";
 import { ProductImage } from "@/components/ProductImage";
 import { StarRating } from "@/components/StarRating";
@@ -14,9 +10,7 @@ import { ProductPurchase } from "@/components/ProductPurchase";
 import { ProductRow } from "@/components/ProductRow";
 import { SectionHeading } from "@/components/SectionHeading";
 
-export function generateStaticParams() {
-  return products.map((p) => ({ slug: p.slug }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
@@ -24,7 +18,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const product = productBySlug(slug);
+  const product = await getProductBySlug(slug);
   return { title: product ? `${product.name} — Tua Pharma` : "Produto — Tua Pharma" };
 }
 
@@ -34,14 +28,14 @@ export default async function ProductPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const product = productBySlug(slug);
+  const product = await getProductBySlug(slug);
   if (!product) notFound();
 
   const category = categoryBySlug(product.category);
   const off = discountPercent(product.price, product.oldPrice);
-  const related = productsByCategory(product.category)
-    .filter((p) => p.id !== product.id)
-    .concat(products.filter((p) => p.bestseller && p.category !== product.category))
+  const all = await getAllProducts();
+  const related = all
+    .filter((p) => p.category === product.category && p.id !== product.id)
     .slice(0, 8);
 
   return (

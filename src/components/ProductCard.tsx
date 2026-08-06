@@ -92,7 +92,7 @@ export function ProductCard({ product }: { product: Product }) {
             </Link>
           ) : (
             <button
-              onClick={() => add(product.id)}
+              onClick={() => add(product)}
               className="btn-gold mt-3 w-full"
             >
               <ShoppingBag size={16} />

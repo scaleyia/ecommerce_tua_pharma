@@ -21,7 +21,7 @@ export function ProductPurchase({ product }: { product: Product }) {
   const price = unitPrice(product, size);
 
   const buyNow = () => {
-    add(product.id, qty, size);
+    add(product, qty, size);
     setOpen(false);
     router.push("/carrinho");
   };
@@ -78,7 +78,7 @@ export function ProductPurchase({ product }: { product: Product }) {
         </div>
 
         <button
-          onClick={() => add(product.id, qty, size)}
+          onClick={() => add(product, qty, size)}
           className="btn-outline flex-1"
         >
           <ShoppingBag size={18} />

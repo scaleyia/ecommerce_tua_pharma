@@ -19,12 +19,13 @@ import { CountdownTimer } from "@/components/CountdownTimer";
 import { Icon } from "@/components/Icon";
 import {
   categories,
-  specialOffers,
-  bestsellers,
+  specialOffers as mockSpecialOffers,
+  bestsellers as mockBestsellers,
   clubRewards,
   POINTS_PER_REAL,
   MIN_REDEEM,
 } from "@/lib/data";
+import { getAllProducts } from "@/lib/medusa";
 
 const benefits = [
   { icon: Truck, title: "Frete grátis", sub: "Acima de R$ 199" },
@@ -51,7 +52,14 @@ const testimonials = [
   },
 ];
 
-export default function HomePage() {
+export const dynamic = "force-dynamic";
+
+export default async function HomePage() {
+  // Produtos gerenciados na Medusa (fallback pro mock enquanto offline)
+  const all = await getAllProducts();
+  const specialOffers = all.length ? all.slice(0, 8) : mockSpecialOffers();
+  const bestsellers = all.length ? all.slice(8, 16) : mockBestsellers();
+
   return (
     <>
       <HeroCarousel />
@@ -118,7 +126,7 @@ export default function HomePage() {
             <CountdownTimer />
           </div>
         </div>
-        <ProductRow products={specialOffers()} />
+        <ProductRow products={specialOffers} />
       </section>
 
       {/* clube de vantagens */}
@@ -190,7 +198,7 @@ export default function HomePage() {
           title="Mais Vendidos"
           linkHref="/produtos"
         />
-        <ProductRow products={bestsellers()} />
+        <ProductRow products={bestsellers} />
       </section>
 
       {/* sobre a farmácia */}
