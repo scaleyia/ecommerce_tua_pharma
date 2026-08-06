@@ -10,7 +10,7 @@ const out = bsProducts.map((p) => ({
   description: p.description || p.shortDescription || p.name,
   category: CAT[p.category] ?? p.category,
   price: Number(p.price.toFixed(2)),
-  compare_at: Number(p.refPrice.toFixed(2)),
+  compare_at: Number((p.refPrice ?? p.price).toFixed(2)),
   sku: p.id.toUpperCase(),
 }));
 writeFileSync("medusa/apps/backend/tua-products.json", JSON.stringify(out, null, 2), "utf8");

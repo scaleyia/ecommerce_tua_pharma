@@ -50,7 +50,7 @@ const rows = bsProducts.map((p) => [
   CATEGORIA[p.category] ?? p.category,
   "", // Nome da variação 1
   "", // Valor da variação 1
-  money(p.refPrice), // Preço cheio (referência)
+  money(p.refPrice ?? p.price), // Preço cheio (referência)
   money(p.price), // Preço promocional (−10%)
   "0.10", // Peso (kg)
   "10", // Altura
