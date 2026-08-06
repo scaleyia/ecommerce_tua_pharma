@@ -37,3 +37,11 @@ nuvemshop-theme/.nuvem
 # Nuvemshop (caminho abandonado — mantido só localmente)
 nuvemshop-theme/
 nuvemshop-produtos.csv
+
+# Monorepo — backend Medusa + banco local
+**/node_modules/
+db/pgdata/
+db/node_modules/
+**/.medusa/
+**/dist/
+medusa/**/tua-products.json

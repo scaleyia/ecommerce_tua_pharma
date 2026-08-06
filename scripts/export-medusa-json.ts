@@ -13,5 +13,5 @@ const out = bsProducts.map((p) => ({
   compare_at: Number(p.refPrice.toFixed(2)),
   sku: p.id.toUpperCase(),
 }));
-writeFileSync("../tua-medusa/apps/backend/tua-products.json", JSON.stringify(out, null, 2), "utf8");
+writeFileSync("medusa/apps/backend/tua-products.json", JSON.stringify(out, null, 2), "utf8");
 console.log("OK:", out.length, "produtos -> tua-medusa/apps/backend/tua-products.json");
