@@ -11,17 +11,21 @@ const LABEL_BG = "#163B2C";
 
 // Posição do rótulo Tua Pharma no corpo de cada garrafa base (calibrado à mão).
 type Box = { left: string; top: string; width: string; height: string };
-const DEFAULT_BOX: Box = { left: "30.5%", top: "43%", width: "39%", height: "31%" };
+// Largura CHEIA do corpo do pote (o rótulo envolve de silhueta a silhueta),
+// para o efeito de rótulo que dá a volta no cilindro.
+const DEFAULT_BOX: Box = { left: "30%", top: "43%", width: "40%", height: "31%" };
 const LABEL_BOX: Record<string, Box> = {
-  // potes brancos sólidos — rótulo centralizado, recortado na largura do corpo
-  "/produtos/base/pote-capsula-1.jpg": { left: "30.5%", top: "43%", width: "39%", height: "31%" },
-  "/produtos/base/pote-capsula-3.jpg": { left: "30.5%", top: "43%", width: "39%", height: "31%" },
-  // pote de goma transparente — cobrir o rótulo branco impresso da foto
-  "/produtos/base/pote-capsula-2.jpg": { left: "29.5%", top: "40%", width: "41%", height: "39%" },
+  // potes brancos sólidos — rótulo casando a largura do corpo (silhueta a silhueta)
+  "/produtos/base/pote-capsula-1.jpg": { left: "30%", top: "43%", width: "40%", height: "31%" },
+  "/produtos/base/pote-capsula-3.jpg": { left: "30%", top: "43%", width: "40%", height: "31%" },
+  // pote de goma transparente — corpo um pouco mais largo/deslocado
+  "/produtos/base/pote-capsula-2.jpg": { left: "30%", top: "40%", width: "43%", height: "39%" },
 };
 
-// Sombreado curvo horizontal — faz a faixa parecer envolver o cilindro.
-const CURVE = "linear-gradient(90deg, rgba(0,0,0,0.24), rgba(255,255,255,0.14) 22%, rgba(255,255,255,0) 50%, rgba(0,0,0,0.24))";
+// Sombreado curvo horizontal FORTE — bordas escuras + realce fora do centro
+// simulam o papel dobrando ao dar a volta no cilindro (efeito "wrap").
+const CURVE =
+  "linear-gradient(90deg, rgba(0,0,0,0.60) 0%, rgba(0,0,0,0.20) 9%, rgba(255,255,255,0.16) 30%, rgba(255,255,255,0.04) 50%, rgba(0,0,0,0.14) 70%, rgba(0,0,0,0.34) 91%, rgba(0,0,0,0.62) 100%)";
 
 /** Quebra o texto em no máximo `maxLines` linhas de até `maxChars` caracteres. */
 function wrap(text: string, maxChars: number, maxLines: number): string[] {
@@ -281,9 +285,9 @@ export function ProductImage({
                 backgroundColor: accent,
                 backgroundImage: CURVE,
                 mixBlendMode: "multiply",
-                borderRadius: "10% / 22%",
+                borderRadius: "1.5cqw",
                 boxShadow:
-                  "inset 0 0.5cqw 0.7cqw rgba(255,255,255,0.16), inset 0 -0.7cqw 0.9cqw rgba(0,0,0,0.30), 0 0.5cqw 1cqw rgba(0,0,0,0.20)",
+                  "inset 0 0.5cqw 0.7cqw rgba(255,255,255,0.14), inset 0 -0.7cqw 0.9cqw rgba(0,0,0,0.32)",
               }}
             />
             {/* Conteúdo por cima, sem blend, para o texto ficar nítido. */}
