@@ -18,6 +18,8 @@ RUN npm install --no-audit --no-fund
 # 2) código + build (gera .medusa/server)
 COPY . .
 RUN npm run build
+# o seed lê tua-products.json a partir do cwd (.medusa/server) em runtime
+RUN cp tua-products.json .medusa/server/tua-products.json
 
 # 3) deps de produção dentro do servidor buildado
 WORKDIR /app/.medusa/server
