@@ -173,9 +173,14 @@ export default async function seedTua({ container }: ExecArgs) {
     logger.info(`  ${Math.min(i + CHUNK, productsInput.length)}/${productsInput.length}`);
   }
 
-  // Mostra a publishable API key (necessária pro storefront)
+  // Mostra as chaves que o site (storefront) precisa: chave publicável + região BR
   const { data: keys } = await query.graph({ entity: "api_key", fields: ["token", "type"] });
   const pak = keys.find((k: any) => k.type === "publishable");
-  logger.info(`PUBLISHABLE_KEY=${pak?.token}`);
+  const { data: regionsFinal } = await query.graph({ entity: "region", fields: ["id", "currency_code"] });
+  const brFinal = regionsFinal.find((r: any) => r.currency_code === "brl");
+  logger.info("==================== CHAVES DO SITE ====================");
+  logger.info(`NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=${pak?.token}`);
+  logger.info(`NEXT_PUBLIC_MEDUSA_REGION_ID=${brFinal?.id}`);
+  logger.info("=======================================================");
   logger.info("Seed Tua Pharma concluído com sucesso.");
 }
