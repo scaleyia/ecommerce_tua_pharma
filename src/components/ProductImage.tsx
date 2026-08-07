@@ -11,11 +11,13 @@ const LABEL_BG = "#163B2C";
 
 // Posição do rótulo Tua Pharma no corpo de cada garrafa base (calibrado à mão).
 type Box = { left: string; top: string; width: string; height: string };
-const DEFAULT_BOX: Box = { left: "30%", top: "49%", width: "40%", height: "18%" };
+const DEFAULT_BOX: Box = { left: "27%", top: "42%", width: "46%", height: "34%" };
 const LABEL_BOX: Record<string, Box> = {
-  "/produtos/base/pote-capsula-1.jpg": { left: "30%", top: "51%", width: "40%", height: "17%" },
-  "/produtos/base/pote-capsula-2.jpg": { left: "28%", top: "45%", width: "44%", height: "24%" },
-  "/produtos/base/pote-capsula-3.jpg": { left: "30%", top: "46%", width: "40%", height: "17%" },
+  // potes brancos sólidos — rótulo grande centralizado no corpo
+  "/produtos/base/pote-capsula-1.jpg": { left: "27%", top: "42%", width: "46%", height: "34%" },
+  "/produtos/base/pote-capsula-3.jpg": { left: "27%", top: "42%", width: "46%", height: "34%" },
+  // pote de goma transparente — cobrir exatamente o rótulo branco impresso da foto
+  "/produtos/base/pote-capsula-2.jpg": { left: "27%", top: "39%", width: "46%", height: "41%" },
 };
 
 // Sombreado curvo horizontal — faz a faixa parecer envolver o cilindro.
