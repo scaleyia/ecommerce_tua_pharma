@@ -37,8 +37,8 @@ function mapProduct(p: any): Product {
   const price = variant?.calculated_price?.calculated_amount ?? 0;
   const catName = p.categories?.[0]?.name;
   // foto real do Medusa (thumbnail/imagem) se houver; senão, foto-base do mock
-  const image: string =
-    p.thumbnail || p.images?.[0]?.url || baseImageFor(p.id);
+  const realPhoto: string | undefined = p.thumbnail || p.images?.[0]?.url;
+  const image: string = realPhoto || baseImageFor(p.id);
   return {
     id: p.id,
     variantId: variant?.id,
@@ -54,6 +54,9 @@ function mapProduct(p: any): Product {
     badges: ["Manipulado"],
     packaging: "pote-capsula",
     image,
+    // foto real (do Medusa) provavelmente já tem rótulo próprio → não sobrepõe o
+    // rótulo Tua; foto-base (fallback) recebe o rótulo desenhado normalmente.
+    showBrand: !realPhoto,
     imageLabel: p.title,
   };
 }

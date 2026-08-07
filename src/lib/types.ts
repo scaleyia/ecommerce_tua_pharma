@@ -43,6 +43,7 @@ export type Product = {
   count?: string; // quantidade padronizada no rótulo (ex.: "60 cápsulas")
   dosage?: string; // dosagem padronizada no rótulo (ex.: "500 mg")
   image?: string; // foto real do produto (royalty-free); fallback p/ ilustração SVG
+  showBrand?: boolean; // desenha o rótulo Tua por cima? (false p/ foto real que já tem rótulo). Padrão: true
   imageLabel?: string; // nome curto exibido na embalagem
   sizes?: ProductSize[]; // opções de tamanho (ex.: loção)
   bestseller?: boolean;

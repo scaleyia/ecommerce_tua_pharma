@@ -30,6 +30,7 @@ export function ProductCard({ product }: { product: Product }) {
           image={product.image}
           label={product.imageLabel ?? product.name}
           spec={productSpec(product)}
+          showBrand={product.showBrand ?? true}
           className="aspect-square"
         />
         {off > 0 && (

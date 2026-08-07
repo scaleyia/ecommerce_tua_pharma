@@ -60,6 +60,7 @@ export default async function ProductPage({
             image={product.image}
             label={product.imageLabel ?? product.name}
             spec={productSpec(product)}
+            showBrand={product.showBrand ?? true}
             variant="detail"
             className="aspect-square rounded-3xl"
           />
@@ -72,6 +73,7 @@ export default async function ProductPage({
                 image={product.image}
                 label={product.imageLabel ?? product.name}
                 spec={productSpec(product)}
+                showBrand={product.showBrand ?? true}
                 className="aspect-square rounded-xl opacity-70"
               />
             ))}
