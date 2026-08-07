@@ -18,10 +18,27 @@ const CAT_SLUG: Record<string, string> = {
   "Longevidade": "longevidade",
 };
 
+// Fotos-base dos potes (mesmas usadas no mock). Servem de fallback quando o
+// produto do Medusa ainda não tem imagem cadastrada, para NUNCA cair no
+// desenho SVG. Escolha determinística pelo id (mesmo produto → mesma foto).
+const BASE_IMAGES = [
+  "/produtos/base/pote-capsula-1.jpg",
+  "/produtos/base/pote-capsula-2.jpg",
+  "/produtos/base/pote-capsula-3.jpg",
+];
+function baseImageFor(id: string): string {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
+  return BASE_IMAGES[h % BASE_IMAGES.length];
+}
+
 function mapProduct(p: any): Product {
   const variant = p.variants?.[0];
   const price = variant?.calculated_price?.calculated_amount ?? 0;
   const catName = p.categories?.[0]?.name;
+  // foto real do Medusa (thumbnail/imagem) se houver; senão, foto-base do mock
+  const image: string =
+    p.thumbnail || p.images?.[0]?.url || baseImageFor(p.id);
   return {
     id: p.id,
     variantId: variant?.id,
@@ -36,11 +53,13 @@ function mapProduct(p: any): Product {
     benefits: [],
     badges: ["Manipulado"],
     packaging: "pote-capsula",
+    image,
     imageLabel: p.title,
   };
 }
 
-const FIELDS = "id,title,handle,description,categories.name,variants.id,variants.calculated_price";
+const FIELDS =
+  "id,title,handle,description,thumbnail,images.url,categories.name,variants.id,variants.calculated_price";
 
 export async function getAllProducts(): Promise<Product[]> {
   try {
