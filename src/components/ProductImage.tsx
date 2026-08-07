@@ -11,13 +11,13 @@ const LABEL_BG = "#163B2C";
 
 // Posição do rótulo Tua Pharma no corpo de cada garrafa base (calibrado à mão).
 type Box = { left: string; top: string; width: string; height: string };
-const DEFAULT_BOX: Box = { left: "27%", top: "42%", width: "46%", height: "34%" };
+const DEFAULT_BOX: Box = { left: "30.5%", top: "43%", width: "39%", height: "31%" };
 const LABEL_BOX: Record<string, Box> = {
-  // potes brancos sólidos — rótulo grande centralizado no corpo
-  "/produtos/base/pote-capsula-1.jpg": { left: "27%", top: "42%", width: "46%", height: "34%" },
-  "/produtos/base/pote-capsula-3.jpg": { left: "27%", top: "42%", width: "46%", height: "34%" },
-  // pote de goma transparente — cobrir exatamente o rótulo branco impresso da foto
-  "/produtos/base/pote-capsula-2.jpg": { left: "27%", top: "39%", width: "46%", height: "41%" },
+  // potes brancos sólidos — rótulo centralizado, recortado na largura do corpo
+  "/produtos/base/pote-capsula-1.jpg": { left: "30.5%", top: "43%", width: "39%", height: "31%" },
+  "/produtos/base/pote-capsula-3.jpg": { left: "30.5%", top: "43%", width: "39%", height: "31%" },
+  // pote de goma transparente — cobrir o rótulo branco impresso da foto
+  "/produtos/base/pote-capsula-2.jpg": { left: "29.5%", top: "40%", width: "41%", height: "39%" },
 };
 
 // Sombreado curvo horizontal — faz a faixa parecer envolver o cilindro.
@@ -269,23 +269,40 @@ export function ProductImage({
         <img src={image} alt={label ?? "Produto Tua Pharma"} loading="lazy" className="h-full w-full object-cover" />
         {showBrand && (
           <div
-            className="pointer-events-none absolute flex flex-col items-center justify-center overflow-hidden rounded-[0.5cqw] px-[2cqw] text-center"
-            style={{ ...box, backgroundColor: accent, backgroundImage: CURVE, boxShadow: "inset 0 0.4cqw 0 rgba(0,0,0,0.14), inset 0 -0.4cqw 0 rgba(0,0,0,0.14)" }}
+            className="pointer-events-none absolute flex flex-col items-center justify-center px-[2cqw] text-center"
+            style={box}
           >
-            <span className="font-display font-light" style={{ fontSize: "2.5cqw", letterSpacing: "0.15em", color: GOLD }}>
-              TUA PHARMA
-            </span>
-            <span className="my-[0.6cqw] h-px w-[7cqw]" style={{ backgroundColor: GOLD, opacity: 0.6 }} />
-            {nameLines.map((ln, i) => (
-              <span key={i} className="font-bold leading-tight text-white" style={{ fontSize: "3.1cqw" }}>
-                {ln}
+            {/* Camada do rótulo: entra em multiply p/ herdar a luz e a sombra do
+                pote da foto (integra ao mockup em vez de ficar chapado por cima).
+                Bordas elípticas simulam a curvatura do cilindro. */}
+            <div
+              className="absolute inset-0"
+              style={{
+                backgroundColor: accent,
+                backgroundImage: CURVE,
+                mixBlendMode: "multiply",
+                borderRadius: "10% / 22%",
+                boxShadow:
+                  "inset 0 0.5cqw 0.7cqw rgba(255,255,255,0.16), inset 0 -0.7cqw 0.9cqw rgba(0,0,0,0.30), 0 0.5cqw 1cqw rgba(0,0,0,0.20)",
+              }}
+            />
+            {/* Conteúdo por cima, sem blend, para o texto ficar nítido. */}
+            <div className="relative flex flex-col items-center justify-center">
+              <span className="font-display font-light" style={{ fontSize: "2.5cqw", letterSpacing: "0.15em", color: GOLD }}>
+                TUA PHARMA
               </span>
-            ))}
-            {spec && (
-              <span className="mt-[0.8cqw] font-semibold" style={{ fontSize: "2.4cqw", color: GOLD }}>
-                {spec}
-              </span>
-            )}
+              <span className="my-[0.6cqw] h-px w-[7cqw]" style={{ backgroundColor: GOLD, opacity: 0.6 }} />
+              {nameLines.map((ln, i) => (
+                <span key={i} className="font-bold leading-tight text-white" style={{ fontSize: "3.1cqw" }}>
+                  {ln}
+                </span>
+              ))}
+              {spec && (
+                <span className="mt-[0.8cqw] font-semibold" style={{ fontSize: "2.4cqw", color: GOLD }}>
+                  {spec}
+                </span>
+              )}
+            </div>
           </div>
         )}
       </div>
