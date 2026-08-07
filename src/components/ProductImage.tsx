@@ -5,6 +5,10 @@ const GOLD = "#C9A227";
 const JOST = "var(--font-jost), serif";
 const INTER = "var(--font-inter), sans-serif";
 
+// Rótulo padronizado (pedido do cliente): UMA cor só para todos os potes —
+// faixa verde Tua + escrita dourada. Mesma identidade em toda a prateleira.
+const LABEL_BG = "#163B2C";
+
 // Posição do rótulo Tua Pharma no corpo de cada garrafa base (calibrado à mão).
 type Box = { left: string; top: string; width: string; height: string };
 const DEFAULT_BOX: Box = { left: "30%", top: "49%", width: "40%", height: "18%" };
@@ -16,15 +20,6 @@ const LABEL_BOX: Record<string, Box> = {
 
 // Sombreado curvo horizontal — faz a faixa parecer envolver o cilindro.
 const CURVE = "linear-gradient(90deg, rgba(0,0,0,0.24), rgba(255,255,255,0.14) 22%, rgba(255,255,255,0) 50%, rgba(0,0,0,0.24))";
-
-// Cor do rótulo por categoria (mesmo accent usado no site).
-const ACCENTS: Record<string, string> = {
-  cabelo: "#1E7BA8",
-  beleza: "#C24B86",
-  saude: "#2F8F5B",
-  fitness: "#CF3B2E",
-  longevidade: "#E38A16",
-};
 
 /** Quebra o texto em no máximo `maxLines` linhas de até `maxChars` caracteres. */
 function wrap(text: string, maxChars: number, maxLines: number): string[] {
@@ -44,15 +39,15 @@ function wrap(text: string, maxChars: number, maxLines: number): string[] {
   return lines.slice(0, maxLines);
 }
 
-/** Logo Tua Pharma em SVG (TUA · risco · PHARMA), versão branca p/ rótulo colorido. */
+/** Logo Tua Pharma em SVG (TUA · risco · PHARMA), em dourado sobre a faixa verde. */
 function BrandMark({ cx, cy }: { cx: number; cy: number }) {
   return (
     <g>
-      <text x={cx} y={cy} textAnchor="middle" fontFamily={JOST} fontSize={7} fill="#fff" letterSpacing={2.4} style={{ fontWeight: 300 }}>
+      <text x={cx} y={cy} textAnchor="middle" fontFamily={JOST} fontSize={7} fill={GOLD} letterSpacing={2.4} style={{ fontWeight: 300 }}>
         TUA
       </text>
-      <line x1={cx - 11} y1={cy + 2.4} x2={cx + 11} y2={cy + 2.4} stroke="#fff" strokeOpacity={0.85} strokeWidth={0.7} />
-      <text x={cx} y={cy + 8} textAnchor="middle" fontFamily={JOST} fontSize={3.2} fill="#fff" fillOpacity={0.92} letterSpacing={2.6} style={{ fontWeight: 300 }}>
+      <line x1={cx - 11} y1={cy + 2.4} x2={cx + 11} y2={cy + 2.4} stroke={GOLD} strokeOpacity={0.85} strokeWidth={0.7} />
+      <text x={cx} y={cy + 8} textAnchor="middle" fontFamily={JOST} fontSize={3.2} fill={GOLD} fillOpacity={0.95} letterSpacing={2.6} style={{ fontWeight: 300 }}>
         PHARMA
       </text>
     </g>
@@ -74,8 +69,8 @@ function LabelContent({ cx, label, spec, top, bottom, maxChars = 12 }: { cx: num
       ))}
       {spec && (
         <>
-          <rect x={cx - 27} y={bottom - 20} width={54} height={13} rx={6.5} fill="#fff" fillOpacity={0.18} stroke="#fff" strokeOpacity={0.4} strokeWidth={0.5} />
-          <text x={cx} y={bottom - 11} textAnchor="middle" fontFamily={INTER} fontSize={6.5} fill="#fff" letterSpacing={0.5} style={{ fontWeight: 600 }}>
+          <rect x={cx - 27} y={bottom - 20} width={54} height={13} rx={6.5} fill={GOLD} fillOpacity={0.16} stroke={GOLD} strokeOpacity={0.5} strokeWidth={0.5} />
+          <text x={cx} y={bottom - 11} textAnchor="middle" fontFamily={INTER} fontSize={6.5} fill={GOLD} letterSpacing={0.5} style={{ fontWeight: 600 }}>
             {spec}
           </text>
         </>
@@ -257,7 +252,10 @@ export function ProductImage({
   iconSize?: number;
 }) {
   const detail = variant === "detail";
-  const accent = (categorySlug && ACCENTS[categorySlug]) || "#2F8F5B";
+  // Cor única padronizada para o rótulo de TODOS os produtos (verde Tua).
+  // `categorySlug`/`ACCENTS` mantidos por compatibilidade, mas o rótulo não varia mais por categoria.
+  void categorySlug;
+  const accent = LABEL_BG;
 
   // Foto real do frasco (royalty-free) com o RÓTULO Tua Pharma impresso no corpo.
   if (image) {
@@ -272,17 +270,17 @@ export function ProductImage({
             className="pointer-events-none absolute flex flex-col items-center justify-center overflow-hidden rounded-[0.5cqw] px-[2cqw] text-center"
             style={{ ...box, backgroundColor: accent, backgroundImage: CURVE, boxShadow: "inset 0 0.4cqw 0 rgba(0,0,0,0.14), inset 0 -0.4cqw 0 rgba(0,0,0,0.14)" }}
           >
-            <span className="font-display font-light text-white/95" style={{ fontSize: "2.5cqw", letterSpacing: "0.15em" }}>
+            <span className="font-display font-light" style={{ fontSize: "2.5cqw", letterSpacing: "0.15em", color: GOLD }}>
               TUA PHARMA
             </span>
-            <span className="my-[0.6cqw] h-px w-[7cqw] bg-white/60" />
+            <span className="my-[0.6cqw] h-px w-[7cqw]" style={{ backgroundColor: GOLD, opacity: 0.6 }} />
             {nameLines.map((ln, i) => (
               <span key={i} className="font-bold leading-tight text-white" style={{ fontSize: "3.1cqw" }}>
                 {ln}
               </span>
             ))}
             {spec && (
-              <span className="mt-[0.8cqw] font-semibold text-white/90" style={{ fontSize: "2.4cqw" }}>
+              <span className="mt-[0.8cqw] font-semibold" style={{ fontSize: "2.4cqw", color: GOLD }}>
                 {spec}
               </span>
             )}

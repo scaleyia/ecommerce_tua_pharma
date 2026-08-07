@@ -144,9 +144,10 @@ export function Footer() {
           </h4>
           <ul className="space-y-2 text-sm">
             <li><Link href="/sobre" className="hover:text-gold">Sobre a Tua Pharma</Link></li>
+            <li><Link href="/veterinaria" className="hover:text-gold">Linha Veterinária (VET)</Link></li>
             <li><Link href="/clube" className="hover:text-gold">Clube de Vantagens</Link></li>
             <li><Link href="/receita" className="hover:text-gold">Envie sua receita</Link></li>
-            <li><a href="#" className="hover:text-gold">Política de Privacidade</a></li>
+            <li><Link href="/privacidade" className="hover:text-gold">Política de Privacidade</Link></li>
             <li><Link href="/trocas-devolucoes" className="hover:text-gold">Trocas e Devoluções</Link></li>
           </ul>
         </div>

@@ -40,6 +40,8 @@ export type Product = {
   benefits: string[];
   badges: string[];
   packaging: Packaging;
+  count?: string; // quantidade padronizada no rótulo (ex.: "60 cápsulas")
+  dosage?: string; // dosagem padronizada no rótulo (ex.: "500 mg")
   image?: string; // foto real do produto (royalty-free); fallback p/ ilustração SVG
   imageLabel?: string; // nome curto exibido na embalagem
   sizes?: ProductSize[]; // opções de tamanho (ex.: loção)

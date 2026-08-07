@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ShoppingBag } from "lucide-react";
 import type { Product } from "@/lib/types";
 import { brl, installment, discountPercent } from "@/lib/format";
+import { productSpec } from "@/lib/data";
 import { ProductImage } from "./ProductImage";
 import { StarRating } from "./StarRating";
 import { useCart } from "@/context/CartContext";
@@ -28,7 +29,7 @@ export function ProductCard({ product }: { product: Product }) {
           categorySlug={product.category}
           image={product.image}
           label={product.imageLabel ?? product.name}
-          spec={product.badges[1]}
+          spec={productSpec(product)}
           className="aspect-square"
         />
         {off > 0 && (

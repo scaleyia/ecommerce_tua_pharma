@@ -49,7 +49,28 @@ export const categories: Category[] = [
     gradient: ["#3E8B68", "#1B4332"],
     accent: "#E38A16",
   },
+  {
+    slug: "veterinaria",
+    name: "Veterinária",
+    tagline: "Manipulados sob medida para o seu pet",
+    icon: "PawPrint",
+    gradient: ["#1B4332", "#0C1E16"],
+    accent: "#3E8B68",
+  },
 ];
+
+// Rótulo padronizado (padrão BS Pharma): sempre nome + TUA PHARMA +
+// quantidade de cápsulas + dosagem. Monta a linha "60 cápsulas · 500 mg"
+// a partir dos campos estruturados; cai no badge legado se ainda não houver.
+export const productSpec = (product: {
+  count?: string;
+  dosage?: string;
+  badges?: string[];
+}): string | undefined => {
+  const parts = [product.count, product.dosage].filter(Boolean);
+  if (parts.length) return parts.join(" · ");
+  return product.badges?.[1];
+};
 
 
 

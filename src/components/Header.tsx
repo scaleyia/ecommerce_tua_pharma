@@ -13,6 +13,7 @@ import {
   Crown,
   FileText,
   Phone,
+  PawPrint,
 } from "lucide-react";
 import { Logo } from "./Logo";
 import { categories } from "@/lib/data";
@@ -42,6 +43,9 @@ export function Header() {
             Frete grátis acima de <strong className="text-gold">R$ 199</strong>
           </span>
           <div className="hidden items-center gap-5 md:flex">
+            <Link href="/veterinaria" className="flex items-center gap-1 hover:text-gold">
+              <PawPrint size={13} /> Linha VET
+            </Link>
             <Link href="/receita" className="flex items-center gap-1 hover:text-gold">
               <FileText size={13} /> Envie sua receita
             </Link>
@@ -188,6 +192,9 @@ export function Header() {
                 </Link>
               ))}
               <div className="my-3 h-px bg-white/10" />
+              <Link href="/veterinaria" onClick={() => setMobileOpen(false)} className="rounded-lg px-3 py-2.5 text-white/85 hover:bg-white/10">
+                Linha Veterinária (VET)
+              </Link>
               <Link href="/clube" onClick={() => setMobileOpen(false)} className="rounded-lg px-3 py-2.5 text-white/85 hover:bg-white/10">
                 Clube de Vantagens
               </Link>

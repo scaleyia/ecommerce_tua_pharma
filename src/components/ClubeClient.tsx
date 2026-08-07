@@ -49,6 +49,7 @@ const faq = [
   { q: "Como eu ganho pontos?", a: `A cada R$ 1 em compras você ganha ${POINTS_PER_REAL} ponto, creditado automaticamente após a confirmação do pedido.` },
   { q: "Quando posso resgatar prêmios?", a: `Assim que atingir ${MIN_REDEEM} pontos. Quanto mais pontos, melhores os prêmios disponíveis.` },
   { q: "Os pontos expiram?", a: "Seus pontos ficam válidos por 12 meses a partir de cada compra." },
+  { q: "Como recebo meu brinde ou prêmio resgatado?", a: "Os prêmios e brindes resgatados com pontos são enviados junto do seu próximo pedido — não há envio avulso. Basta fazer uma nova compra e o mimo vai junto, sem custo de frete adicional." },
 ];
 
 export function ClubeClient() {
@@ -115,8 +116,8 @@ export function ClubeClient() {
       {redeemed && (
         <div className="container-tua pt-6">
           <div className="rounded-2xl bg-green-50 px-5 py-4 text-center text-green-700">
-            🎉 Prêmio <strong>{redeemed}</strong> resgatado com sucesso! Enviamos o código
-            por e-mail. (Demonstração)
+            🎉 Prêmio <strong>{redeemed}</strong> resgatado com sucesso! Ele será enviado
+            junto do seu <strong>próximo pedido</strong>. (Demonstração)
           </div>
         </div>
       )}
@@ -146,6 +147,9 @@ export function ClubeClient() {
         <div className="mb-10 text-center">
           <span className="eyebrow">Troque seus pontos</span>
           <h2 className="mt-1 font-display text-3xl font-light text-green-900">Catálogo de prêmios</h2>
+          <p className="mx-auto mt-3 max-w-xl text-sm text-ink/55">
+            Os prêmios e brindes resgatados são enviados <strong className="text-green-700">junto do seu próximo pedido</strong>.
+          </p>
         </div>
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {clubRewards.map((r) => {

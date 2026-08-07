@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Check, Truck, ShieldCheck, RefreshCw, FlaskConical } from "lucide-react";
-import { categoryBySlug } from "@/lib/data";
+import { categoryBySlug, productSpec } from "@/lib/data";
 import { getProductBySlug, getAllProducts } from "@/lib/medusa";
 import { brl, installment, discountPercent } from "@/lib/format";
 import { ProductImage } from "@/components/ProductImage";
@@ -59,7 +59,7 @@ export default async function ProductPage({
             categorySlug={product.category}
             image={product.image}
             label={product.imageLabel ?? product.name}
-            spec={product.badges[1]}
+            spec={productSpec(product)}
             variant="detail"
             className="aspect-square rounded-3xl"
           />
@@ -71,7 +71,7 @@ export default async function ProductPage({
                 categorySlug={product.category}
                 image={product.image}
                 label={product.imageLabel ?? product.name}
-                spec={product.badges[1]}
+                spec={productSpec(product)}
                 className="aspect-square rounded-xl opacity-70"
               />
             ))}

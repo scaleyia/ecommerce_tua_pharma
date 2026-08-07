@@ -17,6 +17,8 @@ import {
   Coins,
   Star,
   Package,
+  PawPrint,
+  Stethoscope,
   type LucideProps,
 } from "lucide-react";
 
@@ -39,6 +41,8 @@ const map = {
   Coins,
   Star,
   Package,
+  PawPrint,
+  Stethoscope,
 } as const;
 
 export type IconName = keyof typeof map;
