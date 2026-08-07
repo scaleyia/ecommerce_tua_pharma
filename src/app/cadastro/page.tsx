@@ -21,11 +21,12 @@ export default function CadastroPage() {
   });
   const [terms, setTerms] = useState(false);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((f) => ({ ...f, [k]: e.target.value }));
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (form.password !== form.confirm) {
       setError("As senhas não coincidem.");
@@ -35,7 +36,10 @@ export default function CadastroPage() {
       setError("Você precisa aceitar os termos de uso.");
       return;
     }
-    const res = register(form);
+    setLoading(true);
+    setError("");
+    const res = await register(form);
+    setLoading(false);
     if (res.ok) router.push("/conta");
     else setError(res.error ?? "Não foi possível cadastrar.");
   };
@@ -106,8 +110,8 @@ export default function CadastroPage() {
             gratuitamente no Clube Tua Essencial.
           </label>
 
-          <button type="submit" className="btn-gold w-full">
-            <UserPlus size={16} /> Criar minha conta
+          <button type="submit" disabled={loading} className="btn-gold w-full disabled:opacity-60">
+            <UserPlus size={16} /> {loading ? "Criando conta..." : "Criar minha conta"}
           </button>
 
           <p className="text-center text-sm text-ink/60">

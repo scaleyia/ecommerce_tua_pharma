@@ -15,14 +15,24 @@ export default function LoginPage() {
   const [show, setShow] = useState(false);
   const [error, setError] = useState("");
 
+  const dest = () =>
+    (typeof window !== "undefined" &&
+      new URLSearchParams(window.location.search).get("redirect")) ||
+    "/conta";
+
   useEffect(() => {
-    if (hydrated && user) router.replace("/conta");
+    if (hydrated && user) router.replace(dest());
   }, [hydrated, user, router]);
 
-  const submit = (e: React.FormEvent) => {
+  const [loading, setLoading] = useState(false);
+
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const res = login(email, password);
-    if (res.ok) router.push("/conta");
+    setLoading(true);
+    setError("");
+    const res = await login(email, password);
+    setLoading(false);
+    if (res.ok) router.push(dest());
     else setError(res.error ?? "Não foi possível entrar.");
   };
 
@@ -86,8 +96,8 @@ export default function LoginPage() {
             <a href="#" className="text-green-700 hover:text-gold-dark">Esqueci a senha</a>
           </div>
 
-          <button type="submit" className="btn-gold w-full">
-            <LogIn size={16} /> Entrar
+          <button type="submit" disabled={loading} className="btn-gold w-full disabled:opacity-60">
+            <LogIn size={16} /> {loading ? "Entrando..." : "Entrar"}
           </button>
 
           <p className="text-center text-sm text-ink/60">

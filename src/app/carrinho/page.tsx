@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Trash2,
   Plus,
@@ -10,9 +11,11 @@ import {
   Tag,
   CheckCircle2,
   Lock,
+  LogIn,
 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
-import { createMedusaCart } from "@/lib/medusa";
+import { useAuth } from "@/context/AuthContext";
+import { placeOrder, type CheckoutAddress } from "@/lib/checkout";
 import { brl } from "@/lib/format";
 import { ProductImage } from "@/components/ProductImage";
 
@@ -25,16 +28,48 @@ const COUPONS: Record<string, number> = {
   BEMVINDO: 0.05,
 };
 
+const emptyAddress = {
+  name: "",
+  phone: "",
+  cep: "",
+  street: "",
+  number: "",
+  complement: "",
+  district: "",
+  city: "",
+  uf: "",
+};
+
 export default function CartPage() {
   const { items, setQty, remove, subtotal, clear } = useCart();
+  const { user, hydrated } = useAuth();
+  const router = useRouter();
   const [coupon, setCoupon] = useState("");
   const [applied, setApplied] = useState<{ code: string; rate: number } | null>(null);
   const [couponError, setCouponError] = useState("");
-  const [placed, setPlaced] = useState(false);
+  const [placed, setPlaced] = useState<{ displayId?: number } | null>(null);
+  const [addr, setAddr] = useState(emptyAddress);
+  const [loading, setLoading] = useState(false);
+  const [checkoutError, setCheckoutError] = useState("");
+
+  // pré-preenche o endereço com os dados da conta
+  useEffect(() => {
+    if (user)
+      setAddr((a) => ({
+        ...a,
+        name: a.name || user.name || "",
+        phone: a.phone || user.phone || "",
+        cep: a.cep || user.cep || "",
+        street: a.street || user.address || "",
+      }));
+  }, [user]);
 
   const shipping = subtotal >= FREE_SHIPPING || subtotal === 0 ? 0 : 19.9;
   const discount = applied ? subtotal * applied.rate : 0;
   const total = subtotal - discount + shipping;
+
+  const setField = (k: keyof typeof addr) => (e: React.ChangeEvent<HTMLInputElement>) =>
+    setAddr((a) => ({ ...a, [k]: e.target.value }));
 
   const applyCoupon = () => {
     const code = coupon.trim().toUpperCase();
@@ -48,18 +83,40 @@ export default function CartPage() {
   };
 
   const checkout = async () => {
-    // Registra o carrinho na Medusa (pedido pago final depende de pagamento/frete)
-    try {
-      const cartId = await createMedusaCart(
-        items.map((i) => ({ variantId: i.variantId, quantity: i.quantity }))
-      );
-      if (cartId) console.log("Medusa cart criado:", cartId);
-    } catch (e) {
-      console.error(e);
+    // trava: só compra logado
+    if (!user) {
+      router.push("/login?redirect=/carrinho");
+      return;
     }
-    setPlaced(true);
-    clear();
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    // valida endereço mínimo p/ frete + pedido
+    if (!addr.street || !addr.number || !addr.city || !addr.uf || !addr.cep) {
+      setCheckoutError("Preencha o endereço de entrega (CEP, rua, número, cidade e UF).");
+      return;
+    }
+    setCheckoutError("");
+    setLoading(true);
+    try {
+      const [first, ...rest] = addr.name.trim().split(/\s+/);
+      const address: CheckoutAddress = {
+        first_name: first || user.name,
+        last_name: rest.join(" "),
+        phone: addr.phone || undefined,
+        address_1: `${addr.street}, ${addr.number}${addr.complement ? " - " + addr.complement : ""}`,
+        address_2: addr.district || undefined,
+        city: addr.city,
+        province: addr.uf,
+        postal_code: addr.cep.replace(/\D/g, ""),
+        country_code: "br",
+      };
+      const order = await placeOrder({ items, email: user.email, address });
+      setPlaced({ displayId: order.displayId });
+      clear();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (e: any) {
+      setCheckoutError(e?.message || "Não foi possível concluir o pedido.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (placed) {
@@ -70,8 +127,9 @@ export default function CartPage() {
           Pedido realizado com sucesso!
         </h1>
         <p className="max-w-md text-ink/60">
-          Obrigado por comprar na Tua Pharma. Enviamos a confirmação por e-mail e você pode
-          acompanhar o status na sua conta. (Demonstração — nenhuma cobrança foi feita.)
+          Obrigado por comprar na Tua Pharma
+          {placed.displayId ? ` — seu pedido é o nº ${placed.displayId}` : ""}. Você
+          pode acompanhar o status na sua conta.
         </p>
         <div className="flex gap-3">
           <Link href="/produtos" className="btn-green">Continuar comprando</Link>
@@ -229,12 +287,63 @@ export default function CartPage() {
               </div>
             </dl>
 
-            <button onClick={checkout} className="btn-gold mt-5 w-full">
-              <Lock size={16} /> Finalizar compra
-            </button>
-            <p className="mt-3 text-center text-xs text-ink/45">
-              Pagamento 100% seguro · Pix, cartão ou boleto
-            </p>
+            {/* trava: precisa estar logado para comprar */}
+            {hydrated && !user ? (
+              <div className="mt-5 rounded-xl bg-cream p-4 text-center">
+                <p className="text-sm text-ink/70">
+                  Para finalizar a compra, entre na sua conta ou cadastre-se.
+                </p>
+                <Link
+                  href="/login?redirect=/carrinho"
+                  className="btn-gold mt-3 w-full"
+                >
+                  <LogIn size={16} /> Entrar para comprar
+                </Link>
+                <Link
+                  href="/cadastro"
+                  className="mt-2 block text-xs font-medium text-green-700 hover:text-gold-dark"
+                >
+                  Não tem conta? Cadastre-se
+                </Link>
+              </div>
+            ) : (
+              <>
+                {/* endereço de entrega */}
+                <div className="mt-5 border-t border-green-900/10 pt-4">
+                  <h3 className="mb-2 text-sm font-semibold text-green-900">
+                    Endereço de entrega
+                  </h3>
+                  <div className="grid grid-cols-2 gap-2">
+                    <input value={addr.name} onChange={setField("name")} placeholder="Nome completo" className="input col-span-2" />
+                    <input value={addr.phone} onChange={setField("phone")} placeholder="Telefone" className="input" />
+                    <input value={addr.cep} onChange={setField("cep")} placeholder="CEP" className="input" />
+                    <input value={addr.street} onChange={setField("street")} placeholder="Rua" className="input col-span-2" />
+                    <input value={addr.number} onChange={setField("number")} placeholder="Número" className="input" />
+                    <input value={addr.complement} onChange={setField("complement")} placeholder="Complemento" className="input" />
+                    <input value={addr.district} onChange={setField("district")} placeholder="Bairro" className="input col-span-2" />
+                    <input value={addr.city} onChange={setField("city")} placeholder="Cidade" className="input" />
+                    <input value={addr.uf} onChange={setField("uf")} placeholder="UF" maxLength={2} className="input" />
+                  </div>
+                </div>
+
+                {checkoutError && (
+                  <p className="mt-3 rounded-lg bg-red-50 px-4 py-2.5 text-sm text-red-600">
+                    {checkoutError}
+                  </p>
+                )}
+
+                <button
+                  onClick={checkout}
+                  disabled={loading}
+                  className="btn-gold mt-4 w-full disabled:opacity-60"
+                >
+                  <Lock size={16} /> {loading ? "Processando..." : "Finalizar compra"}
+                </button>
+                <p className="mt-3 text-center text-xs text-ink/45">
+                  Pagamento 100% seguro · Pix, cartão ou boleto
+                </p>
+              </>
+            )}
           </div>
         </aside>
       </div>

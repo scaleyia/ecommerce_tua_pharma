@@ -1,12 +1,15 @@
 import { ExecArgs } from "@medusajs/framework/types";
 import {
   ContainerRegistrationKeys,
+  ModuleRegistrationName,
+  Modules,
   ProductStatus,
 } from "@medusajs/framework/utils";
 import {
   createProductCategoriesWorkflow,
   createProductsWorkflow,
   createRegionsWorkflow,
+  createShippingOptionsWorkflow,
   createTaxRegionsWorkflow,
   updateStoresWorkflow,
 } from "@medusajs/medusa/core-flows";
@@ -53,6 +56,70 @@ export default async function seedTua({ container }: ExecArgs) {
     });
     await createTaxRegionsWorkflow(container).run({
       input: [{ country_code: "br", provider_id: "tp_system" }],
+    });
+  }
+
+  // Frete Brasil: o seed padrão só cobre a Europa. Sem uma opção de frete na
+  // zona "br"/região BRL, o carrinho não completa em pedido. Cria uma vez.
+  const { data: allRegions } = await query.graph({
+    entity: "region",
+    fields: ["id", "currency_code"],
+  });
+  const brRegion = allRegions.find((r: any) => r.currency_code === "brl");
+  const { data: fsets } = await query.graph({
+    entity: "fulfillment_set",
+    fields: ["id", "name"],
+  });
+  if (brRegion && !fsets.find((f: any) => f.name === "Entrega Brasil")) {
+    logger.info("Criando opção de frete Brasil...");
+    const link = container.resolve(ContainerRegistrationKeys.LINK);
+    const fulfillmentModuleService = container.resolve(
+      ModuleRegistrationName.FULFILLMENT
+    );
+    const { data: locs } = await query.graph({
+      entity: "stock_location",
+      fields: ["id"],
+    });
+    const stockLocation = locs[0];
+
+    const fset = await fulfillmentModuleService.createFulfillmentSets({
+      name: "Entrega Brasil",
+      type: "shipping",
+      service_zones: [
+        { name: "Brasil", geo_zones: [{ country_code: "br", type: "country" }] },
+      ],
+    });
+
+    if (stockLocation) {
+      await link.create({
+        [Modules.STOCK_LOCATION]: { stock_location_id: stockLocation.id },
+        [Modules.FULFILLMENT]: { fulfillment_set_id: fset.id },
+      });
+    }
+
+    await createShippingOptionsWorkflow(container).run({
+      input: [
+        {
+          name: "Frete padrão",
+          price_type: "flat",
+          provider_id: "manual_manual",
+          service_zone_id: fset.service_zones[0].id,
+          shipping_profile_id: shippingProfile.id,
+          type: {
+            label: "Padrão",
+            description: "Entrega em alguns dias úteis.",
+            code: "standard",
+          },
+          prices: [
+            { currency_code: "brl", amount: 19.9 },
+            { region_id: brRegion.id, amount: 19.9 },
+          ],
+          rules: [
+            { attribute: "enabled_in_store", value: "true", operator: "eq" },
+            { attribute: "is_return", value: "false", operator: "eq" },
+          ],
+        },
+      ],
     });
   }
 
