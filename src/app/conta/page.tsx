@@ -17,11 +17,7 @@ import { clubRewards, MIN_REDEEM } from "@/lib/data";
 import { brl } from "@/lib/format";
 import { Icon } from "@/components/Icon";
 
-const mockOrders = [
-  { id: "#TUA-10432", date: "28/06/2026", status: "Entregue", total: 259.7, items: 3 },
-  { id: "#TUA-10390", date: "12/06/2026", status: "A caminho", total: 89.9, items: 1 },
-  { id: "#TUA-10321", date: "02/05/2026", status: "Entregue", total: 174.8, items: 2 },
-];
+import { listMyOrders, type StoreOrder } from "@/lib/orders";
 
 type Tab = "perfil" | "pedidos" | "clube";
 
@@ -30,6 +26,8 @@ export default function ContaPage() {
   const router = useRouter();
   const [tab, setTab] = useState<Tab>("perfil");
   const [saved, setSaved] = useState(false);
+  const [orders, setOrders] = useState<StoreOrder[] | null>(null);
+  const [ordersError, setOrdersError] = useState("");
   const [form, setForm] = useState({
     name: "",
     phone: "",
@@ -54,6 +52,16 @@ export default function ContaPage() {
         address: user.address ?? "",
       });
   }, [user]);
+
+  // pedidos reais da Medusa (só quando o cliente abre a aba)
+  useEffect(() => {
+    if (tab !== "pedidos" || !user || orders !== null) return;
+    listMyOrders()
+      .then(setOrders)
+      .catch(() =>
+        setOrdersError("Não foi possível carregar seus pedidos agora.")
+      );
+  }, [tab, user, orders]);
 
   if (!hydrated || !user) {
     return <div className="container-tua py-24 text-center text-ink/50">Carregando...</div>;
@@ -185,14 +193,35 @@ export default function ContaPage() {
               <h2 className="mb-5 font-display text-xl font-light text-green-900">
                 Meus pedidos
               </h2>
+
+              {orders === null && !ordersError && (
+                <p className="text-sm text-ink/50">Carregando seus pedidos...</p>
+              )}
+              {ordersError && (
+                <p className="rounded-lg bg-red-50 px-4 py-2.5 text-sm text-red-600">
+                  {ordersError}
+                </p>
+              )}
+              {orders?.length === 0 && (
+                <div className="rounded-xl border border-dashed border-green-900/15 p-8 text-center">
+                  <Package size={32} className="mx-auto text-green-900/20" />
+                  <p className="mt-3 text-sm text-ink/60">
+                    Você ainda não fez nenhum pedido.
+                  </p>
+                  <Link href="/produtos" className="btn-gold mt-4 inline-flex">
+                    Ver produtos
+                  </Link>
+                </div>
+              )}
+
               <div className="space-y-3">
-                {mockOrders.map((o) => (
+                {(orders ?? []).map((o) => (
                   <div
                     key={o.id}
                     className="flex flex-col gap-2 rounded-xl border border-green-900/10 p-4 sm:flex-row sm:items-center sm:justify-between"
                   >
                     <div>
-                      <p className="font-medium text-green-900">{o.id}</p>
+                      <p className="font-medium text-green-900">{o.number}</p>
                       <p className="text-xs text-ink/50">
                         {o.date} · {o.items} {o.items === 1 ? "item" : "itens"}
                       </p>

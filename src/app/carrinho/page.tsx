@@ -12,10 +12,21 @@ import {
   CheckCircle2,
   Lock,
   LogIn,
+  QrCode,
+  CreditCard,
+  Copy,
+  Loader2,
 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
-import { placeOrder, type CheckoutAddress } from "@/lib/checkout";
+import {
+  startCheckout,
+  completeWhenPaid,
+  pagarmeEnabled,
+  type CheckoutAddress,
+  type PaymentMethod,
+} from "@/lib/checkout";
+import { cardEnabled, tokenizeCard } from "@/lib/pagarme";
 import { brl } from "@/lib/format";
 import { ProductImage } from "@/components/ProductImage";
 
@@ -40,6 +51,13 @@ const emptyAddress = {
   uf: "",
 };
 
+const emptyCard = {
+  number: "",
+  holder: "",
+  exp: "", // MM/AA
+  cvv: "",
+};
+
 export default function CartPage() {
   const { items, setQty, remove, subtotal, clear } = useCart();
   const { user, hydrated } = useAuth();
@@ -52,9 +70,21 @@ export default function CartPage() {
   const [loading, setLoading] = useState(false);
   const [checkoutError, setCheckoutError] = useState("");
 
+  // pagamento
+  const [method, setMethod] = useState<PaymentMethod>("pix");
+  const [cpf, setCpf] = useState("");
+  const [card, setCard] = useState(emptyCard);
+  const [pagarmeOn, setPagarmeOn] = useState(false);
+  const [pix, setPix] = useState<{
+    cartId: string;
+    qrCode?: string;
+    qrCodeUrl?: string;
+  } | null>(null);
+  const [copied, setCopied] = useState(false);
+
   // pré-preenche o endereço com os dados da conta
   useEffect(() => {
-    if (user)
+    if (user) {
       setAddr((a) => ({
         ...a,
         name: a.name || user.name || "",
@@ -62,7 +92,34 @@ export default function CartPage() {
         cep: a.cep || user.cep || "",
         street: a.street || user.address || "",
       }));
+      setCpf((c) => c || user.cpf || "");
+    }
   }, [user]);
+
+  // o seletor Pix/cartão só faz sentido com a Pagar.me habilitada na região
+  useEffect(() => {
+    pagarmeEnabled().then(setPagarmeOn);
+  }, []);
+
+  // Pix é assíncrono: fica tentando fechar o carrinho até o pagamento cair
+  useEffect(() => {
+    if (!pix) return;
+    let alive = true;
+    const timer = setInterval(async () => {
+      const order = await completeWhenPaid(pix.cartId);
+      if (order && alive) {
+        clearInterval(timer);
+        setPix(null);
+        setPlaced({ displayId: order.displayId });
+        clear();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    }, 5000);
+    return () => {
+      alive = false;
+      clearInterval(timer);
+    };
+  }, [pix, clear]);
 
   const shipping = subtotal >= FREE_SHIPPING || subtotal === 0 ? 0 : 19.9;
   const discount = applied ? subtotal * applied.rate : 0;
@@ -93,6 +150,11 @@ export default function CartPage() {
       setCheckoutError("Preencha o endereço de entrega (CEP, rua, número, cidade e UF).");
       return;
     }
+    // Pix na Pagar.me exige CPF do pagador
+    if (pagarmeOn && !cpf.replace(/\D/g, "")) {
+      setCheckoutError("Informe o CPF do titular para gerar o pagamento.");
+      return;
+    }
     setCheckoutError("");
     setLoading(true);
     try {
@@ -108,10 +170,37 @@ export default function CartPage() {
         postal_code: addr.cep.replace(/\D/g, ""),
         country_code: "br",
       };
-      const order = await placeOrder({ items, email: user.email, address });
-      setPlaced({ displayId: order.displayId });
-      clear();
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      // cartão: token gerado no navegador (o número não passa pelo nosso servidor)
+      let cardToken: string | undefined;
+      if (pagarmeOn && method === "credit_card") {
+        const [mm, yy] = card.exp.split("/").map((s) => s.trim());
+        cardToken = await tokenizeCard({
+          number: card.number,
+          holderName: card.holder,
+          expMonth: mm ?? "",
+          expYear: yy ?? "",
+          cvv: card.cvv,
+        });
+      }
+
+      const result = await startCheckout({
+        items,
+        email: user.email,
+        address,
+        paymentMethod: method,
+        document: cpf,
+        phone: addr.phone,
+        cardToken,
+      });
+
+      if (result.kind === "pix") {
+        setPix(result);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } else {
+        setPlaced({ displayId: result.order.displayId });
+        clear();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
     } catch (e: any) {
       setCheckoutError(e?.message || "Não foi possível concluir o pedido.");
     } finally {
@@ -135,6 +224,62 @@ export default function CartPage() {
           <Link href="/produtos" className="btn-green">Continuar comprando</Link>
           <Link href="/conta" className="btn-outline">Ver meus pedidos</Link>
         </div>
+      </div>
+    );
+  }
+
+  // aguardando o Pix cair (o pedido só é criado depois do pagamento)
+  if (pix) {
+    return (
+      <div className="container-tua flex flex-col items-center gap-5 py-16 text-center">
+        <QrCode size={48} className="text-green-700" />
+        <h1 className="font-display text-3xl font-light text-green-900">
+          Pague com Pix para concluir
+        </h1>
+        <p className="max-w-md text-ink/60">
+          Abra o app do seu banco, escaneie o QR code abaixo (ou use o
+          copia-e-cola) e pague <strong>{brl(total)}</strong>. Assim que o
+          pagamento cair, seu pedido é gerado automaticamente.
+        </p>
+
+        {pix.qrCodeUrl && (
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img
+            src={pix.qrCodeUrl}
+            alt="QR code do Pix"
+            className="h-60 w-60 rounded-2xl border border-green-900/10 bg-white p-3"
+          />
+        )}
+
+        {pix.qrCode && (
+          <div className="w-full max-w-md">
+            <p className="label text-left">Pix copia e cola</p>
+            <div className="flex gap-2">
+              <input readOnly value={pix.qrCode} className="input font-mono text-xs" />
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(pix.qrCode!);
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 2000);
+                }}
+                className="btn-green shrink-0 px-4 py-2"
+              >
+                <Copy size={16} /> {copied ? "Copiado!" : "Copiar"}
+              </button>
+            </div>
+          </div>
+        )}
+
+        <p className="flex items-center gap-2 text-sm text-ink/50">
+          <Loader2 size={16} className="animate-spin" /> Aguardando confirmação do
+          pagamento...
+        </p>
+        <button
+          onClick={() => setPix(null)}
+          className="text-xs font-medium text-ink/50 hover:text-red-500"
+        >
+          Cancelar e voltar ao carrinho
+        </button>
       </div>
     );
   }
@@ -326,6 +471,79 @@ export default function CartPage() {
                   </div>
                 </div>
 
+                {/* forma de pagamento (só com a Pagar.me habilitada) */}
+                {pagarmeOn && (
+                  <div className="mt-5 border-t border-green-900/10 pt-4">
+                    <h3 className="mb-2 text-sm font-semibold text-green-900">
+                      Forma de pagamento
+                    </h3>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setMethod("pix")}
+                        className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl border px-3 py-2.5 text-sm font-medium transition ${
+                          method === "pix"
+                            ? "border-gold bg-gold/10 text-green-900"
+                            : "border-green-900/15 text-ink/60 hover:border-green-900/30"
+                        }`}
+                      >
+                        <QrCode size={16} /> Pix
+                      </button>
+                      {cardEnabled() && (
+                        <button
+                          type="button"
+                          onClick={() => setMethod("credit_card")}
+                          className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl border px-3 py-2.5 text-sm font-medium transition ${
+                            method === "credit_card"
+                              ? "border-gold bg-gold/10 text-green-900"
+                              : "border-green-900/15 text-ink/60 hover:border-green-900/30"
+                          }`}
+                        >
+                          <CreditCard size={16} /> Cartão
+                        </button>
+                      )}
+                    </div>
+
+                    <input
+                      value={cpf}
+                      onChange={(e) => setCpf(e.target.value)}
+                      placeholder="CPF do titular"
+                      className="input mt-2"
+                    />
+
+                    {method === "credit_card" && (
+                      <div className="mt-2 grid grid-cols-2 gap-2">
+                        <input
+                          value={card.number}
+                          onChange={(e) => setCard((c) => ({ ...c, number: e.target.value }))}
+                          placeholder="Número do cartão"
+                          inputMode="numeric"
+                          className="input col-span-2"
+                        />
+                        <input
+                          value={card.holder}
+                          onChange={(e) => setCard((c) => ({ ...c, holder: e.target.value }))}
+                          placeholder="Nome impresso no cartão"
+                          className="input col-span-2"
+                        />
+                        <input
+                          value={card.exp}
+                          onChange={(e) => setCard((c) => ({ ...c, exp: e.target.value }))}
+                          placeholder="Validade (MM/AA)"
+                          className="input"
+                        />
+                        <input
+                          value={card.cvv}
+                          onChange={(e) => setCard((c) => ({ ...c, cvv: e.target.value }))}
+                          placeholder="CVV"
+                          inputMode="numeric"
+                          className="input"
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 {checkoutError && (
                   <p className="mt-3 rounded-lg bg-red-50 px-4 py-2.5 text-sm text-red-600">
                     {checkoutError}
@@ -337,7 +555,12 @@ export default function CartPage() {
                   disabled={loading}
                   className="btn-gold mt-4 w-full disabled:opacity-60"
                 >
-                  <Lock size={16} /> {loading ? "Processando..." : "Finalizar compra"}
+                  <Lock size={16} />{" "}
+                  {loading
+                    ? "Processando..."
+                    : pagarmeOn && method === "pix"
+                      ? "Gerar Pix e finalizar"
+                      : "Finalizar compra"}
                 </button>
                 <p className="mt-3 text-center text-xs text-ink/45">
                   Pagamento 100% seguro · Pix, cartão ou boleto
