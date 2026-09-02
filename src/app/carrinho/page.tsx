@@ -75,6 +75,7 @@ export default function CartPage() {
   const [cpf, setCpf] = useState("");
   const [card, setCard] = useState(emptyCard);
   const [pagarmeOn, setPagarmeOn] = useState(false);
+  const [cardOn, setCardOn] = useState(false);
   const [pix, setPix] = useState<{
     cartId: string;
     qrCode?: string;
@@ -99,6 +100,7 @@ export default function CartPage() {
   // o seletor Pix/cartão só faz sentido com a Pagar.me habilitada na região
   useEffect(() => {
     pagarmeEnabled().then(setPagarmeOn);
+    cardEnabled().then(setCardOn);
   }, []);
 
   // Pix é assíncrono: fica tentando fechar o carrinho até o pagamento cair
@@ -491,7 +493,7 @@ export default function CartPage() {
                       >
                         <QrCode size={16} /> Pix
                       </button>
-                      {cardEnabled() && (
+                      {cardOn && (
                         <button
                           type="button"
                           onClick={() => setMethod("credit_card")}
