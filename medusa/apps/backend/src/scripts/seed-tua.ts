@@ -8,6 +8,7 @@ import {
 import {
   createProductCategoriesWorkflow,
   createProductsWorkflow,
+  createPromotionsWorkflow,
   createRegionsWorkflow,
   createShippingOptionsWorkflow,
   createTaxRegionsWorkflow,
@@ -70,7 +71,18 @@ export default async function seedTua({ container }: ExecArgs) {
     entity: "fulfillment_set",
     fields: ["id", "name"],
   });
-  if (brRegion && !fsets.find((f: any) => f.name === "Entrega Brasil")) {
+  // Em produção a zona "Brasil" foi criada direto pela API admin dentro do
+  // fulfillment set que já existia — por isso o guard também olha as zonas, e
+  // não só o nome do set, senão o seed duplicaria o frete.
+  const { data: zones } = await query.graph({
+    entity: "service_zone",
+    fields: ["id", "name"],
+  });
+  const brShippingExists =
+    fsets.find((f: any) => f.name === "Entrega Brasil") ||
+    zones.find((z: any) => z.name === "Brasil");
+
+  if (brRegion && !brShippingExists) {
     logger.info("Criando opção de frete Brasil...");
     const link = container.resolve(ContainerRegistrationKeys.LINK);
     const fulfillmentModuleService = container.resolve(
@@ -120,6 +132,77 @@ export default async function seedTua({ container }: ExecArgs) {
           ],
         },
       ],
+    });
+  }
+
+  // Cupons: até aqui os códigos TUA5/TUA10/... só existiam no front (desconto
+  // visual). Como o valor cobrado sai do carrinho da Medusa, eles precisam
+  // existir como PROMOÇÃO aqui, senão o cliente vê um preço e paga outro.
+  const COUPONS: Record<string, number> = {
+    TUA5: 5,
+    TUA10: 10,
+    TUA15: 15,
+    TUA20: 20,
+    BEMVINDO: 5,
+  };
+  const { data: existingPromos } = await query.graph({
+    entity: "promotion",
+    fields: ["id", "code"],
+  });
+  const promoCodes = new Set(existingPromos.map((p: any) => p.code));
+  const missingPromos = Object.entries(COUPONS).filter(
+    ([code]) => !promoCodes.has(code)
+  );
+
+  if (missingPromos.length) {
+    logger.info(`Criando ${missingPromos.length} cupons...`);
+    await createPromotionsWorkflow(container).run({
+      input: {
+        promotionsData: missingPromos.map(([code, percent]) => ({
+          code,
+          type: "standard" as const,
+          status: "active" as const,
+          application_method: {
+            type: "percentage" as const,
+            target_type: "items" as const,
+            allocation: "across" as const,
+            value: percent,
+            currency_code: "brl",
+          },
+        })),
+      },
+    });
+  }
+
+  // Frete grátis acima de R$199 — mesma regra que a loja anuncia. Automático:
+  // não depende de o cliente digitar nada.
+  if (!promoCodes.has("FRETEGRATIS199")) {
+    logger.info("Criando promoção de frete grátis acima de R$199...");
+    await createPromotionsWorkflow(container).run({
+      input: {
+        promotionsData: [
+          {
+            code: "FRETEGRATIS199",
+            type: "standard" as const,
+            status: "active" as const,
+            is_automatic: true,
+            application_method: {
+              type: "percentage" as const,
+              target_type: "shipping_methods" as const,
+              allocation: "across" as const,
+              value: 100,
+              currency_code: "brl",
+            },
+            rules: [
+              {
+                attribute: "item_total",
+                operator: "gte" as const,
+                values: ["199"],
+              },
+            ],
+          },
+        ],
+      },
     });
   }
 

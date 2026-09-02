@@ -67,6 +67,13 @@ export async function startCheckout(opts: {
   /** token gerado no navegador (só para cartão) */
   cardToken?: string;
   installments?: number;
+  /** cupom digitado pelo cliente (vira promoção na Medusa) */
+  promoCode?: string;
+  /**
+   * Total que a tela MOSTROU ao cliente. Serve de trava: se a Medusa calcular
+   * outro valor, abortamos em vez de cobrar um preço diferente do exibido.
+   */
+  expectedTotal?: number;
 }): Promise<CheckoutResult> {
   const line_items = opts.items
     .filter((i) => i.variantId)
@@ -104,6 +111,33 @@ export async function startCheckout(opts: {
   await sdk.store.cart.addShippingMethod(cart.id, {
     option_id: shipping_options[0].id,
   });
+
+  // 3.1) cupom: vira promoção na Medusa (senão o desconto seria só visual)
+  if (opts.promoCode) {
+    try {
+      await sdk.store.cart.update(cart.id, {
+        promo_codes: [opts.promoCode],
+      } as any);
+    } catch {
+      throw new Error(
+        `O cupom ${opts.promoCode} não está ativo na loja. Remova o cupom para continuar.`
+      );
+    }
+  }
+
+  // 3.2) TRAVA DE PREÇO: o que a Medusa vai cobrar tem que ser o que a tela
+  // mostrou. Se divergir, aborta — melhor falhar do que cobrar a mais.
+  if (typeof opts.expectedTotal === "number") {
+    const { cart: priced } = await sdk.store.cart.retrieve(cart.id);
+    const medusaTotal = Number((priced as any).total ?? 0);
+    if (Math.abs(medusaTotal - opts.expectedTotal) > 0.01) {
+      throw new Error(
+        `O valor do pedido mudou (de ${opts.expectedTotal.toFixed(2)} para ${medusaTotal.toFixed(
+          2
+        )}). Atualize a página e confira o carrinho antes de pagar.`
+      );
+    }
+  }
 
   // 4) sessão de pagamento
   const providers = await listProviders();

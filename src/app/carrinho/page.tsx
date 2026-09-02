@@ -191,6 +191,8 @@ export default function CartPage() {
         document: cpf,
         phone: addr.phone,
         cardToken,
+        promoCode: applied?.code,
+        expectedTotal: total,
       });
 
       if (result.kind === "pix") {
