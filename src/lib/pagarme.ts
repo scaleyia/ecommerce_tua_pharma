@@ -2,6 +2,10 @@
 // O número do cartão NUNCA passa pelo nosso backend: vai direto pra Pagar.me
 // usando a CHAVE PÚBLICA (pk_), que só serve pra criar token. O backend recebe
 // apenas o `card_token`.
+// Atenção: esta chave é embutida no bundle em tempo de BUILD. Se ela for criada
+// ou alterada no Vercel depois de um build, é preciso um deploy SEM cache (ou
+// alterar este arquivo) — o cache do Next reaproveita o módulo já compilado com
+// o valor antigo, e o botão de cartão some sem nenhum erro aparente.
 const PUBLIC_KEY = process.env.NEXT_PUBLIC_PAGARME_PUBLIC_KEY || "";
 
 export const cardEnabled = () => Boolean(PUBLIC_KEY);
