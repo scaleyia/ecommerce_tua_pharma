@@ -176,6 +176,30 @@ export default class PagarmeProviderService extends AbstractPaymentProvider<Opti
     return c
   }
 
+  /**
+   * Monta o cliente conforme o meio de pagamento.
+   *
+   * ATENÇÃO — comportamento verificado na API de produção: em pedidos de
+   * CARTÃO, mandar `phones` faz a cobrança falhar com
+   * `validation_error | billing | "value" is required`, uma mensagem que aponta
+   * para o lugar errado (fala de billing, o problema é o telefone). Testado com
+   * 8 e 9 dígitos, country_code texto e número, mobile_phone e home_phone: todos
+   * falham. Sem telefone, a cobrança chega normalmente na bandeira.
+   *
+   * No Pix o telefone é aceito sem problema, então só o cartão fica sem.
+   */
+  private buildCustomerFor(
+    method: string,
+    customer: any,
+    extra: Record<string, any>
+  ): any {
+    const c = this.buildCustomer(customer, extra)
+    if (method === "credit_card") {
+      delete c.phones
+    }
+    return c
+  }
+
   // ------------------------------------------------------------ core methods
 
   async initiatePayment(
@@ -214,7 +238,7 @@ export default class PagarmeProviderService extends AbstractPaymentProvider<Opti
           code: sessionId || "cart",
         },
       ],
-      customer: this.buildCustomer(context?.customer, extra),
+      customer: this.buildCustomerFor(method, context?.customer, extra),
       payments,
       metadata: { session_id: sessionId },
     }
