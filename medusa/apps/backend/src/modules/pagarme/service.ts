@@ -143,6 +143,21 @@ export default class PagarmeProviderService extends AbstractPaymentProvider<Opti
 
     const c: any = { name, email, type: "individual" }
 
+    // Endereço: o Pagar.me EXIGE endereço de cobrança para cartão. Sem ele a
+    // cobrança falha com "validation_error | billing | value is required" —
+    // antes de chegar na bandeira, ou seja, TODO cartão era recusado.
+    const addr = extra.billing_address as Record<string, any> | undefined
+    if (addr?.line_1) {
+      c.address = {
+        line_1: String(addr.line_1),
+        ...(addr.line_2 ? { line_2: String(addr.line_2) } : {}),
+        zip_code: String(addr.zip_code ?? "").replace(/\D/g, ""),
+        city: String(addr.city ?? ""),
+        state: String(addr.state ?? "").toUpperCase().slice(0, 2),
+        country: String(addr.country ?? "BR").toUpperCase(),
+      }
+    }
+
     if (document) {
       const isCompany = document.length > 11
       c.document = document

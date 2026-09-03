@@ -159,6 +159,16 @@ export async function startCheckout(opts: {
             customer_name:
               `${opts.address.first_name} ${opts.address.last_name}`.trim(),
             customer_email: opts.email,
+            // O Pagar.me exige endereço de cobrança para cartão; sem isto a
+            // cobrança é recusada na validação, antes de chegar na bandeira.
+            billing_address: {
+              line_1: opts.address.address_1,
+              line_2: opts.address.address_2 || "",
+              zip_code: opts.address.postal_code || "",
+              city: opts.address.city,
+              state: opts.address.province || "",
+              country: (opts.address.country_code || "br").toUpperCase(),
+            },
             ...(opts.cardToken ? { card_token: opts.cardToken } : {}),
             ...(opts.installments ? { installments: opts.installments } : {}),
           }
