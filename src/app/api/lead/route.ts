@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { appendFile, access } from "fs/promises";
 import path from "path";
+import { saveLead, adminEnabled } from "@/lib/medusa-admin";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -73,7 +74,32 @@ export async function POST(req: Request) {
       }
     }
 
-    return NextResponse.json({ ok: true });
+    // 3) destino DEFINITIVO: grava no Medusa, no grupo "Leads — pop-up".
+    //    O CSV local some a cada requisição na Vercel e a planilha depende do
+    //    Google; aqui o lead fica no mesmo banco da loja, visível no painel.
+    let saved: "criado" | "atualizado" | null = null;
+    let saveError: string | null = null;
+    if (adminEnabled()) {
+      try {
+        saved = await saveLead({
+          name,
+          email,
+          whatsapp,
+          birthdate,
+          coupon,
+          origem: source,
+        });
+      } catch (e: any) {
+        saveError = e?.message || "falha ao gravar no Medusa";
+        console.error("[lead] falha ao gravar no Medusa:", saveError);
+      }
+    } else {
+      saveError = "MEDUSA_ADMIN_API_KEY não configurada";
+    }
+
+    // O visitante nunca vê erro: o cupom dele não pode depender da nossa
+    // infraestrutura. Mas devolvemos o diagnóstico para monitoramento.
+    return NextResponse.json({ ok: true, saved, saveError });
   } catch {
     return NextResponse.json({ ok: false, error: "Erro ao salvar." }, { status: 500 });
   }
