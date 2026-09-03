@@ -13,19 +13,45 @@ const LABEL_BG = "#163B2C";
 type Box = { left: string; top: string; width: string; height: string };
 // Largura CHEIA do corpo do pote (o rótulo envolve de silhueta a silhueta),
 // para o efeito de rótulo que dá a volta no cilindro.
-const DEFAULT_BOX: Box = { left: "30%", top: "43%", width: "40%", height: "31%" };
+const DEFAULT_BOX: Box = { left: "31%", top: "43%", width: "38%", height: "31%" };
+// Larguras MEDIDAS na silhueta de cada foto (varredura dos pixels do corpo do
+// pote na altura do rótulo), não estimadas no olho. Rótulo que passa da
+// silhueta deixa de parecer enrolado e vira adesivo flutuando; rótulo que sobra
+// corpo dos dois lados, idem. Tem que morrer exatamente na borda.
 const LABEL_BOX: Record<string, Box> = {
-  // potes brancos sólidos — rótulo casando a largura do corpo (silhueta a silhueta)
-  "/produtos/base/pote-capsula-1.jpg": { left: "30%", top: "43%", width: "40%", height: "31%" },
-  "/produtos/base/pote-capsula-3.jpg": { left: "30%", top: "43%", width: "40%", height: "31%" },
-  // pote de goma transparente — corpo um pouco mais largo/deslocado
-  "/produtos/base/pote-capsula-2.jpg": { left: "30%", top: "40%", width: "43%", height: "39%" },
+  // pote branco sólido — silhueta medida 31,1% → 70,5%
+  "/produtos/base/pote-capsula-1.jpg": { left: "31.1%", top: "43%", width: "39.4%", height: "31%" },
+  // pote branco um pouco mais estreito — silhueta 31,0% → 68,3%
+  "/produtos/base/pote-capsula-3.jpg": { left: "31%", top: "43%", width: "37.3%", height: "31%" },
+  // pote de goma transparente — silhueta 31,3% → 69,0%
+  "/produtos/base/pote-capsula-2.jpg": { left: "31.3%", top: "40%", width: "37.7%", height: "39%" },
 };
 
 // Sombreado curvo horizontal FORTE — bordas escuras + realce fora do centro
 // simulam o papel dobrando ao dar a volta no cilindro (efeito "wrap").
 const CURVE =
-  "linear-gradient(90deg, rgba(0,0,0,0.60) 0%, rgba(0,0,0,0.20) 9%, rgba(255,255,255,0.16) 30%, rgba(255,255,255,0.04) 50%, rgba(0,0,0,0.14) 70%, rgba(0,0,0,0.34) 91%, rgba(0,0,0,0.62) 100%)";
+  "linear-gradient(90deg, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.44) 5%, rgba(0,0,0,0.12) 14%, rgba(255,255,255,0.18) 31%, rgba(255,255,255,0.05) 48%, rgba(0,0,0,0.16) 68%, rgba(0,0,0,0.42) 88%, rgba(0,0,0,0.74) 100%)";
+
+// Máscara que dá a FORMA de rótulo enrolado no cilindro.
+//
+// Um retângulo de bordas retas sempre lê como adesivo colado por cima. Num pote
+// cilíndrico fotografado um pouco de cima, as bordas de cima e de baixo do
+// rótulo são arcos que MERGULHAM no centro (é a elipse do cilindro vista de
+// frente). São esses dois arcos que fazem o olho entender que o papel dá a
+// volta. `preserveAspectRatio='none'` deixa a máscara esticar junto com a caixa
+// do rótulo, que muda de proporção conforme a foto-base.
+const MASK =
+  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M0,4 Q50,16 100,4 L100,90 Q50,102 0,90 Z' fill='%23fff'/%3E%3C/svg%3E\")";
+
+// Estilos da máscara, repetidos com prefixo para o Safari.
+const MASK_STYLE = {
+  maskImage: MASK,
+  WebkitMaskImage: MASK,
+  maskSize: "100% 100%",
+  WebkitMaskSize: "100% 100%",
+  maskRepeat: "no-repeat",
+  WebkitMaskRepeat: "no-repeat",
+} as const;
 
 /** Quebra o texto em no máximo `maxLines` linhas de até `maxChars` caracteres. */
 function wrap(text: string, maxChars: number, maxLines: number): string[] {
@@ -285,13 +311,26 @@ export function ProductImage({
                 backgroundColor: accent,
                 backgroundImage: CURVE,
                 mixBlendMode: "multiply",
-                borderRadius: "1.5cqw",
-                boxShadow:
-                  "inset 0 0.5cqw 0.7cqw rgba(255,255,255,0.14), inset 0 -0.7cqw 0.9cqw rgba(0,0,0,0.32)",
+                ...MASK_STYLE,
               }}
             />
-            {/* Conteúdo por cima, sem blend, para o texto ficar nítido. */}
-            <div className="relative flex flex-col items-center justify-center">
+            {/* Vinco de luz nas bordas superior e inferior: o papel dobra ali,
+                então a borda pega um fio de brilho por cima da sombra. */}
+            <div
+              className="absolute inset-0"
+              style={{
+                backgroundImage:
+                  "linear-gradient(180deg, rgba(255,255,255,0.20) 0%, rgba(255,255,255,0) 12%, rgba(0,0,0,0) 82%, rgba(0,0,0,0.28) 100%)",
+                mixBlendMode: "overlay",
+                ...MASK_STYLE,
+              }}
+            />
+            {/* Conteúdo por cima, sem blend, para o texto ficar nítido. O leve
+                deslocamento acompanha o centro do arco, que fica mais baixo. */}
+            <div
+              className="relative flex flex-col items-center justify-center"
+              style={{ transform: "translateY(3%)" }}
+            >
               <span className="font-display font-light" style={{ fontSize: "2.5cqw", letterSpacing: "0.15em", color: GOLD }}>
                 TUA PHARMA
               </span>
