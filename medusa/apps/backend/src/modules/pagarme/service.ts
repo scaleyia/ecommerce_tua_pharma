@@ -177,27 +177,30 @@ export default class PagarmeProviderService extends AbstractPaymentProvider<Opti
   }
 
   /**
-   * Monta o cliente conforme o meio de pagamento.
+   * Endereço de cobrança do cartão.
    *
-   * ATENÇÃO — comportamento verificado na API de produção: em pedidos de
-   * CARTÃO, mandar `phones` faz a cobrança falhar com
-   * `validation_error | billing | "value" is required`, uma mensagem que aponta
-   * para o lugar errado (fala de billing, o problema é o telefone). Testado com
-   * 8 e 9 dígitos, country_code texto e número, mobile_phone e home_phone: todos
-   * falham. Sem telefone, a cobrança chega normalmente na bandeira.
+   * Verificado contra a API de produção, com o valor real de um pedido: em
+   * cobrança de cartão o Pagar.me exige o endereço DENTRO do cartão
+   * (`credit_card.card.billing_address`). Pôr só em `customer.address` não
+   * basta — a cobrança falha com `validation_error | billing | "value" is
+   * required`. O telefone do cliente também é obrigatório ("At least one
+   * customer phone is required"), então os dois precisam ir juntos.
    *
-   * No Pix o telefone é aceito sem problema, então só o cartão fica sem.
+   * A mensagem de erro não ajuda: some quando o valor é baixo (a análise
+   * antifraude só entra acima de certo valor), o que faz o problema parecer
+   * intermitente.
    */
-  private buildCustomerFor(
-    method: string,
-    customer: any,
-    extra: Record<string, any>
-  ): any {
-    const c = this.buildCustomer(customer, extra)
-    if (method === "credit_card") {
-      delete c.phones
+  private buildBillingAddress(extra: Record<string, any>): any | undefined {
+    const addr = extra.billing_address as Record<string, any> | undefined
+    if (!addr?.line_1) return undefined
+    return {
+      line_1: String(addr.line_1),
+      ...(addr.line_2 ? { line_2: String(addr.line_2) } : {}),
+      zip_code: String(addr.zip_code ?? "").replace(/\D/g, ""),
+      city: String(addr.city ?? ""),
+      state: String(addr.state ?? "").toUpperCase().slice(0, 2),
+      country: String(addr.country ?? "BR").toUpperCase(),
     }
-    return c
   }
 
   // ------------------------------------------------------------ core methods
@@ -213,12 +216,15 @@ export default class PagarmeProviderService extends AbstractPaymentProvider<Opti
 
     const payments: any[] = []
     if (method === "credit_card") {
+      const billing = this.buildBillingAddress(extra)
       payments.push({
         payment_method: "credit_card",
         credit_card: {
           installments: Number(extra.installments ?? 1),
           statement_descriptor: this.options_.statementDescriptor ?? "TUAPHARMA",
           ...(extra.card_token ? { card_token: extra.card_token } : {}),
+          // exigido pela análise antifraude — ver buildBillingAddress()
+          ...(billing ? { card: { billing_address: billing } } : {}),
         },
       })
     } else {
@@ -238,7 +244,7 @@ export default class PagarmeProviderService extends AbstractPaymentProvider<Opti
           code: sessionId || "cart",
         },
       ],
-      customer: this.buildCustomerFor(method, context?.customer, extra),
+      customer: this.buildCustomer(context?.customer, extra),
       payments,
       metadata: { session_id: sessionId },
     }
